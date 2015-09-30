@@ -226,6 +226,9 @@ public final class TestActionBuilder {
     }
 
     int runsPerTest = config.getRunsPerTestForLabel(ruleContext.getLabel());
+    if (testProperties.isFlaky()) {
+      runsPerTest *= 3;
+    }
 
     Iterable<Artifact> inputs = inputsBuilder.build();
     int shardRuns = (shards > 0 ? shards : 1);
@@ -275,6 +278,6 @@ public final class TestActionBuilder {
 
     return new TestParams(runsPerTest, shards, TestTimeout.getTestTimeout(ruleContext.getRule()),
         ruleContext.getRule().getRuleClass(), ImmutableList.copyOf(results),
-        coverageArtifacts.build(), reportGenerator);
+        coverageArtifacts.build(), reportGenerator, testProperties.isFlaky());
   }
 }

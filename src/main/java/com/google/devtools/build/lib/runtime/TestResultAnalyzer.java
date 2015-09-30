@@ -217,7 +217,8 @@ public class TestResultAnalyzer {
           Collections.singletonList(execRoot.getRelative(coverageData)));
     }
 
-    if (!executionOptions.runsPerTestDetectsFlakes) {
+    if (!executionOptions.runsPerTestDetectsFlakes &&
+        !target.getProvider(TestProvider.class).getTestParams().isFlaky()) {
       status = aggregateStatus(status, result.getData().getStatus());
     } else {
       int shardNumber = result.getShardNum();

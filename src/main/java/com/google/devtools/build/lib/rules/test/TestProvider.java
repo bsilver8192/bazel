@@ -73,6 +73,7 @@ public final class TestProvider implements TransitiveInfoProvider {
     private final ImmutableList<Artifact> testStatusArtifacts;
     private final ImmutableList<Artifact> coverageArtifacts;
     private final Artifact coverageReportGenerator;
+    private final boolean flaky;
 
     /**
      * Don't call this directly. Instead use {@link TestActionBuilder}.
@@ -80,7 +81,8 @@ public final class TestProvider implements TransitiveInfoProvider {
     TestParams(int runs, int shards, TestTimeout timeout, String testRuleClass,
         ImmutableList<Artifact> testStatusArtifacts,
         ImmutableList<Artifact> coverageArtifacts,
-        Artifact coverageReportGenerator) {
+        Artifact coverageReportGenerator,
+        boolean flaky) {
       this.runs = runs;
       this.shards = shards;
       this.timeout = timeout;
@@ -88,6 +90,7 @@ public final class TestProvider implements TransitiveInfoProvider {
       this.testStatusArtifacts = testStatusArtifacts;
       this.coverageArtifacts = coverageArtifacts;
       this.coverageReportGenerator = coverageReportGenerator;
+      this.flaky = flaky;
     }
 
     /**
@@ -138,6 +141,10 @@ public final class TestProvider implements TransitiveInfoProvider {
      */
     public Artifact getCoverageReportGenerator() {
       return coverageReportGenerator;
+    }
+
+    public boolean isFlaky() {
+      return flaky;
     }
   }
 }
