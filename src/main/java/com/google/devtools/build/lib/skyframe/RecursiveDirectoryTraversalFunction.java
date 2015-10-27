@@ -146,6 +146,11 @@ abstract class RecursiveDirectoryTraversalFunction
       return getEmptyReturn();
     }
 
+    if (fileValue.isSymlink()) {
+      // We do not follow directory symlinks. It prevents symlink loops.
+      return getEmptyReturn();
+    }
+
     PackageIdentifier packageId = PackageIdentifier.create(
         recursivePkgKey.getRepository(), rootRelativePath);
 

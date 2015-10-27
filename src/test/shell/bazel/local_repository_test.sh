@@ -930,7 +930,7 @@ EOF
   expect_log "@r//a:h"
 }
 
-function test_recursive_wildcard_in_remote_repository() {
+function DISABLED_test_recursive_wildcard_in_remote_repository() {
   local r=$TEST_TMPDIR/r
   rm -fr $r
   mkdir -p $r/a/{x,y/z}

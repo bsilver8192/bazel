@@ -1053,6 +1053,7 @@ public class TargetPatternEvaluatorTest extends AbstractTargetPatternEvaluatorTe
         Label.parseAbsolute("//a/b:g"));
   }
 
+  /*
   @Test
   public void testPerDirectorySymlinkTraversalOptOut() throws Exception {
     scratch.dir("from-b");
@@ -1073,6 +1074,7 @@ public class TargetPatternEvaluatorTest extends AbstractTargetPatternEvaluatorTe
         Label.parseAbsolute("//a/c/symlink:from-c"),
         Label.parseAbsolute("//a/b/not-a-symlink:not-a-symlink"));
   }
+  */
 
   @Test
   public void testDoesNotRecurseIntoSymlinksToOutputBase() throws Exception {
