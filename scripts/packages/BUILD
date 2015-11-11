@@ -129,9 +129,7 @@ pkg_deb(
             "java8-jdk | java8-sdk",
         ],
     }) + [
-        "pkg-config",
         "zip",
-        "g++",
         "zlib1g-dev",
         "unzip",
         "bash-completion",
