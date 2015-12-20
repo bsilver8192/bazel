@@ -38,9 +38,9 @@ public class RunUnderConverterTest {
     assertEqualsRunUnder("command -c", null, "command", ImmutableList.of("-c"));
     assertEqualsRunUnder("command -c --out=all", null, "command",
         ImmutableList.of("-c", "--out=all"));
-    assertEqualsRunUnder("//run:under", "//run:under", null, ImmutableList.<String>of());
-    assertEqualsRunUnder("//run:under -c", "//run:under", null, ImmutableList.of("-c"));
-    assertEqualsRunUnder("//run:under -c --out=all", "//run:under", null,
+    assertEqualsRunUnder("//run:under", "@//run:under", null, ImmutableList.<String>of());
+    assertEqualsRunUnder("//run:under -c", "@//run:under", null, ImmutableList.of("-c"));
+    assertEqualsRunUnder("//run:under -c --out=all", "@//run:under", null,
         ImmutableList.of("-c", "--out=all"));
 
     assertRunUnderFails("", "Empty command");

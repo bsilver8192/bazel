@@ -150,7 +150,7 @@ public class AbstractAttributeMapperTest extends FoundationTestCase {
     VisitationRecorder recorder = new VisitationRecorder();
     mapper.visitLabels(recorder);
     assertThat(recorder.labelsVisited)
-        .containsExactlyElementsIn(ImmutableList.of("//x:a", "//x:b", "//x:c"));
+        .containsExactlyElementsIn(ImmutableList.of("@//x:a", "@//x:b", "@//x:c"));
   }
 
   @Test

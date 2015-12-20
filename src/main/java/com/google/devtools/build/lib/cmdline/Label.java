@@ -48,7 +48,7 @@ public final class Label implements Comparable<Label>, Serializable, SkylarkPrin
    * Package names that aren't made relative to the current repository because they mean special
    * things to Bazel.
    */
-  private static final ImmutableSet<PathFragment> ABSOLUTE_PACKAGE_NAMES = ImmutableSet.of(
+  public static final ImmutableSet<PathFragment> ABSOLUTE_PACKAGE_NAMES = ImmutableSet.of(
       // Used for select
       new PathFragment("conditions"),
       // dependencies that are a function of the configuration
@@ -59,7 +59,7 @@ public final class Label implements Comparable<Label>, Serializable, SkylarkPrin
       Label.EXTERNAL_PACKAGE_NAME);
 
   public static final PackageIdentifier EXTERNAL_PACKAGE_IDENTIFIER =
-      PackageIdentifier.createInDefaultRepo(EXTERNAL_PACKAGE_NAME);
+      PackageIdentifier.createInMainRepo(EXTERNAL_PACKAGE_NAME);
 
   public static final String EXTERNAL_PATH_PREFIX = "external";
 
@@ -71,9 +71,15 @@ public final class Label implements Comparable<Label>, Serializable, SkylarkPrin
    * {@literal @}foo//bar
    * {@literal @}foo//bar:baz
    * </pre>
+   *
+   * @param defaultToMain Treat labels in the default repository as being in the main
+   *   one instead.
    */
   public static Label parseAbsolute(String absName) throws LabelSyntaxException {
-    String repo = PackageIdentifier.DEFAULT_REPOSITORY;
+    return parseAbsolute(absName, true);
+  }
+  public static Label parseAbsolute(String absName, boolean defaultToMain) throws LabelSyntaxException {
+    String repo = defaultToMain ? "@" : PackageIdentifier.DEFAULT_REPOSITORY;
     int packageStartPos = absName.indexOf("//");
     if (packageStartPos > 0) {
       repo = absName.substring(0, packageStartPos);
@@ -83,8 +89,12 @@ public final class Label implements Comparable<Label>, Serializable, SkylarkPrin
       LabelValidator.PackageAndTarget labelParts = LabelValidator.parseAbsoluteLabel(absName);
       PackageIdentifier pkgIdWithoutRepo =
           validate(labelParts.getPackageName(), labelParts.getTargetName());
+      PathFragment packageFragment = pkgIdWithoutRepo.getPackageFragment();
+      if (repo.equals("") && ABSOLUTE_PACKAGE_NAMES.contains(packageFragment)) {
+        repo = "@";
+      }
       return new Label(
-          PackageIdentifier.create(repo, pkgIdWithoutRepo.getPackageFragment()),
+          PackageIdentifier.create(repo, packageFragment),
           labelParts.getTargetName());
     } catch (BadLabelException e) {
       throw new LabelSyntaxException(e.getMessage());
@@ -98,12 +108,16 @@ public final class Label implements Comparable<Label>, Serializable, SkylarkPrin
    *
    * <p>Do not use this when the argument is not hard-wired.
    */
-  public static Label parseAbsoluteUnchecked(String absName) {
+  public static Label parseAbsoluteUnchecked(String absName, boolean defaultToMain) {
     try {
-      return parseAbsolute(absName);
+      return parseAbsolute(absName, defaultToMain);
     } catch (LabelSyntaxException e) {
       throw new IllegalArgumentException(e);
     }
+  }
+
+  public static Label parseAbsoluteUnchecked(String absName) {
+    return parseAbsoluteUnchecked(absName, true);
   }
 
   /**
@@ -322,7 +336,7 @@ public final class Label implements Comparable<Label>, Serializable, SkylarkPrin
   /**
    * Renders this label in canonical form.
    *
-   * <p>invariant: {@code parseAbsolute(x.toString()).equals(x)}
+   * <p>invariant: {@code parseAbsolute(x.toString(), false).equals(x)}
    */
   @Override
   public String toString() {
@@ -332,10 +346,25 @@ public final class Label implements Comparable<Label>, Serializable, SkylarkPrin
   /**
    * Renders this label in canonical form.
    *
-   * <p>invariant: {@code parseAbsolute(x.toString()).equals(x)}
+   * <p>invariant: {@code parseAbsolute(x.getCanonicalForm(), false).equals(x)}
    */
   public String getCanonicalForm() {
     return packageIdentifier.getRepository() + "//" + packageIdentifier.getPackageFragment()
+        + ":" + name;
+  }
+
+  /**
+   * Renders this label in canonical form, except with labels in the main and default
+   * repositories conflated.
+   */
+  public String getDefaultCanonicalForm() {
+    String repository;
+    if (packageIdentifier.getRepository().isMain()) {
+      repository = "";
+    } else {
+      repository = packageIdentifier.getRepository().getName();
+    }
+    return repository + "//" + packageIdentifier.getPackageFragment()
         + ":" + name;
   }
 
@@ -391,7 +420,7 @@ public final class Label implements Comparable<Label>, Serializable, SkylarkPrin
     }
 
     if (LabelValidator.isAbsolute(relName)) {
-      return resolveRepositoryRelative(parseAbsolute(relName));
+      return resolveRepositoryRelative(parseAbsolute(relName, false));
     } else if (relName.equals(":")) {
       throw new LabelSyntaxException("':' is not a valid package-relative label");
     } else if (relName.charAt(0) == ':') {
@@ -407,11 +436,12 @@ public final class Label implements Comparable<Label>, Serializable, SkylarkPrin
    * <p>This is necessary so that dependency edges in remote repositories do not need to explicitly
    * mention their repository name. Otherwise, referring to e.g. <code>//a:b</code> in a remote
    * repository would point back to the main repository, which is usually not what is intended.
+   *
+   * <p>The return value will not be in the default repository.
    */
   public Label resolveRepositoryRelative(Label relative) {
     if (packageIdentifier.getRepository().isDefault()
-        || !relative.packageIdentifier.getRepository().isDefault()
-        || ABSOLUTE_PACKAGE_NAMES.contains(relative.getPackageIdentifier().getPackageFragment())) {
+        || !relative.packageIdentifier.getRepository().isDefault()) {
       return relative;
     } else {
       try {

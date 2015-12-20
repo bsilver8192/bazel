@@ -80,7 +80,7 @@ public class InputFileTest {
     InputFile inputFileX = (InputFile) pkg.getTarget("x");
     checkPathMatches(inputFileX, pathX);
     checkName(inputFileX, "x");
-    checkLabel(inputFileX, "//pkg:x");
+    checkLabel(inputFileX, "@//pkg:x");
     assertEquals("source file", inputFileX.getTargetKind());
   }
 
@@ -89,7 +89,7 @@ public class InputFileTest {
     InputFile inputFileY = (InputFile) pkg.getTarget("subdir/y");
     checkPathMatches(inputFileY, pathY);
     checkName(inputFileY, "subdir/y");
-    checkLabel(inputFileY, "//pkg:subdir/y");
+    checkLabel(inputFileY, "@//pkg:subdir/y");
   }
 
   @Test

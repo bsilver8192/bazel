@@ -273,7 +273,7 @@ public class ConstraintsTest extends AbstractConstraintsTest {
     String ruleDef = getDependencyRule(
         constrainedTo("//buildenv/foo:b"), compatibleWith("//buildenv/foo:b"));
     assertNull(scratchConfiguredTarget("hello", "dep", ruleDef));
-    assertContainsEvent("//buildenv/foo:b cannot appear both here and in restricted_to");
+    assertContainsEvent("@//buildenv/foo:b cannot appear both here and in restricted_to");
   }
 
   /**
@@ -287,7 +287,7 @@ public class ConstraintsTest extends AbstractConstraintsTest {
         constrainedTo("//buildenv/foo:a"), compatibleWith("//buildenv/foo:b"));
     assertNull(scratchConfiguredTarget("hello", "dep", ruleDef));
     assertContainsEvent(
-        "//buildenv/foo:b and //buildenv/foo:a belong to the same environment group");
+        "@//buildenv/foo:b and @//buildenv/foo:a belong to the same environment group");
   }
 
   /**
@@ -346,7 +346,7 @@ public class ConstraintsTest extends AbstractConstraintsTest {
     reporter.removeHandler(failFastHandler);
     String ruleDef = "bad_rule_class_default(name = 'a')";
     assertNull(scratchConfiguredTarget("hello", "a", ruleDef));
-    assertContainsEvent("//buildenv/rule_class_compat:a and //buildenv/rule_class_compat:b "
+    assertContainsEvent("@//buildenv/rule_class_compat:a and @//buildenv/rule_class_compat:b "
         + "belong to the same environment group");
   }
 
@@ -403,7 +403,7 @@ public class ConstraintsTest extends AbstractConstraintsTest {
     reporter.removeHandler(failFastHandler);
     assertNull(getConfiguredTarget("//hello:main"));
     assertContainsEvent(
-        "dependency //hello:dep doesn't support expected environment: //buildenv/foo:a");
+        "dependency @//hello:dep doesn't support expected environment: @//buildenv/foo:a");
   }
 
   /**
@@ -450,7 +450,7 @@ public class ConstraintsTest extends AbstractConstraintsTest {
     reporter.removeHandler(failFastHandler);
     assertNull(getConfiguredTarget("//hello:main"));
     assertContainsEvent(
-        "dependency //hello:dep doesn't support expected environment: //buildenv/foo:b");
+        "dependency @//hello:dep doesn't support expected environment: @//buildenv/foo:b");
   }
 
   /**
@@ -465,8 +465,8 @@ public class ConstraintsTest extends AbstractConstraintsTest {
         getDependingRule(compatibleWith("//buildenv/foo:b", "//buildenv/foo:c")));
     reporter.removeHandler(failFastHandler);
     assertNull(getConfiguredTarget("//hello:main"));
-    assertContainsEvent("dependency //hello:dep doesn't support expected environments: "
-        + "//buildenv/foo:b, //buildenv/foo:c");
+    assertContainsEvent("dependency @//hello:dep doesn't support expected environments: "
+        + "@//buildenv/foo:b, @//buildenv/foo:c");
   }
 
   /**
@@ -502,7 +502,7 @@ public class ConstraintsTest extends AbstractConstraintsTest {
     reporter.removeHandler(failFastHandler);
     assertNull(getConfiguredTarget("//hello:main"));
     assertContainsEvent(
-        "dependency //hello:dep doesn't support expected environment: //buildenv/foo:b");
+        "dependency @//hello:dep doesn't support expected environment: @//buildenv/foo:b");
   }
 
   /**
@@ -534,7 +534,7 @@ public class ConstraintsTest extends AbstractConstraintsTest {
     reporter.removeHandler(failFastHandler);
     assertNull(getConfiguredTarget("//hello:main"));
     assertContainsEvent(
-        "dependency //hello:dep doesn't support expected environment: //buildenv/foo:c");
+        "dependency @//hello:dep doesn't support expected environment: @//buildenv/foo:c");
   }
 
   /**
@@ -568,7 +568,7 @@ public class ConstraintsTest extends AbstractConstraintsTest {
     reporter.removeHandler(failFastHandler);
     assertNull(getConfiguredTarget("//hello:main"));
     assertContainsEvent(
-        "dependency //hello:dep doesn't support expected environment: //buildenv/foo:a");
+        "dependency @//hello:dep doesn't support expected environment: @//buildenv/foo:a");
   }
 
   /**
@@ -585,7 +585,7 @@ public class ConstraintsTest extends AbstractConstraintsTest {
             getAttrDef("deps", "good_dep", "bad_dep")));
     reporter.removeHandler(failFastHandler);
     assertNull(getConfiguredTarget("//hello:depender"));
-    assertContainsEvent("//hello:bad_dep doesn't support expected environment: //buildenv/foo:a");
+    assertContainsEvent("@//hello:bad_dep doesn't support expected environment: @//buildenv/foo:a");
     assertDoesNotContainEvent("//hello:good_dep");
   }
 
@@ -632,7 +632,7 @@ public class ConstraintsTest extends AbstractConstraintsTest {
     reporter.removeHandler(failFastHandler);
     assertNull(getConfiguredTarget("//hello:main"));
     assertContainsEvent(
-        "dependency //hello:dep doesn't support expected environment: //buildenv/foo:b");
+        "dependency @//hello:dep doesn't support expected environment: @//buildenv/foo:b");
   }
 
   /**
@@ -667,7 +667,7 @@ public class ConstraintsTest extends AbstractConstraintsTest {
     reporter.removeHandler(failFastHandler);
     assertNull(getConfiguredTarget("//hello:main"));
     assertContainsEvent(
-        "dependency //hello:dep doesn't support expected environment: //buildenv/foo:b");
+        "dependency @//hello:dep doesn't support expected environment: @//buildenv/foo:b");
   }
 
   /**
@@ -684,7 +684,7 @@ public class ConstraintsTest extends AbstractConstraintsTest {
         getDependencyRule(compatibleWith("//buildenv/foo:a")));
     reporter.removeHandler(failFastHandler);
     assertNull(getConfiguredTarget("//hello:dep"));
-    assertContainsEvent("//buildenv/foo:a and //buildenv/foo:b belong to the same "
+    assertContainsEvent("@//buildenv/foo:a and @//buildenv/foo:b belong to the same "
         + "environment group. They should be declared together either here or in restricted_to");
   }
 
@@ -750,7 +750,7 @@ public class ConstraintsTest extends AbstractConstraintsTest {
     reporter.removeHandler(failFastHandler);
     assertNull(getConfiguredTarget("//hello:hi"));
     assertContainsEvent(
-        "dependency //helpers:implicit doesn't support expected environment: //buildenv/foo:b");
+        "dependency @//helpers:implicit doesn't support expected environment: @//buildenv/foo:b");
   }
 
   @Test
@@ -766,7 +766,7 @@ public class ConstraintsTest extends AbstractConstraintsTest {
     reporter.removeHandler(failFastHandler);
     assertNull(getConfiguredTarget("//hello:shlib"));
     assertContainsEvent(
-        "dependency //hello:gen doesn't support expected environment: //buildenv/foo:a");
+        "dependency @//hello:gen doesn't support expected environment: @//buildenv/foo:a");
   }
 
   @Test
@@ -811,7 +811,7 @@ public class ConstraintsTest extends AbstractConstraintsTest {
     reporter.removeHandler(failFastHandler);
     assertNull(getConfiguredTarget("//hello:main"));
     assertContainsEvent(
-        "dependency //hello:dep doesn't support expected environment: //buildenv/foo:a");
+        "dependency @//hello:dep doesn't support expected environment: @//buildenv/foo:a");
   }
 
   @Test

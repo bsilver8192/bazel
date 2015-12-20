@@ -191,8 +191,8 @@ public class BuildViewTest extends BuildViewTestBase {
     assertThat(result.hasError()).isTrue();
     assertThat(recorder.events).hasSize(1);
     AnalysisFailureEvent event = recorder.events.get(0);
-    assertEquals("//foo:bar", event.getFailureReason().toString());
-    assertEquals("//foo:foo", event.getFailedTarget().getLabel().toString());
+    assertEquals("@//foo:bar", event.getFailureReason().toString());
+    assertEquals("@//foo:foo", event.getFailedTarget().getLabel().toString());
   }
 
   @Test
@@ -216,7 +216,7 @@ public class BuildViewTest extends BuildViewTestBase {
         .contains(
             Pair.of(Label.parseAbsolute("//pkg:foo"), Label.parseAbsolute("//nopackage:missing")));
     assertContainsEvent("missing value for mandatory attribute 'outs'");
-    assertContainsEvent("no such package 'nopackage'");
+    assertContainsEvent("no such package '@//nopackage'");
     // Skyframe correctly reports the other root cause as the genrule itself (since it is
     // missing attributes).
     assertThat(recorder.events).hasSize(2);
@@ -396,7 +396,7 @@ public class BuildViewTest extends BuildViewTestBase {
   @Test
   public void testOutputFilterSeeWarning() throws Exception {
     runAnalysisWithOutputFilter(Pattern.compile(".*"));
-    assertContainsEvent("please do not import '//java/a:A.java'");
+    assertContainsEvent("please do not import '@//java/a:A.java'");
   }
 
   // Regression test: "output_filter broken (but in a different way)"
@@ -412,7 +412,7 @@ public class BuildViewTest extends BuildViewTestBase {
     reporter.removeHandler(failFastHandler);
     AnalysisResult result = update(defaultFlags().with(Flag.KEEP_GOING), "//a");
     assertThat(result.hasError()).isTrue();
-    assertContainsEvent("errors encountered while analyzing target '//a:a'");
+    assertContainsEvent("errors encountered while analyzing target '@//a:a'");
   }
 
   /**
@@ -431,8 +431,8 @@ public class BuildViewTest extends BuildViewTestBase {
     AnalysisResult result =
         update(defaultFlags().with(Flag.KEEP_GOING), "//foo:top1", "//foo:top2");
     assertThat(result.hasError()).isTrue();
-    assertContainsEvent("in sh_library rule //foo:rec1: cycle in dependency graph:\n");
-    assertContainsEvent("in sh_library rule //foo:top");
+    assertContainsEvent("in sh_library rule @//foo:rec1: cycle in dependency graph:\n");
+    assertContainsEvent("in sh_library rule @//foo:top");
   }
 
   // Regression test: cycle node depends on error.
@@ -454,11 +454,11 @@ public class BuildViewTest extends BuildViewTestBase {
     } catch (LoadingFailedException | ViewCreationFailedException e) {
       // Expected.
     }
-    assertContainsEvent("no such target '//badbuild:isweird': target 'isweird' not declared in "
+    assertContainsEvent("no such target '@//badbuild:isweird': target 'isweird' not declared in "
         + "package 'badbuild'");
-    assertContainsEvent("and referenced by '//foo:bad'");
+    assertContainsEvent("and referenced by '@//foo:bad'");
     if (eventCollector.count() > 1) {
-      assertContainsEvent("in sh_library rule //foo");
+      assertContainsEvent("in sh_library rule @//foo");
       assertContainsEvent("cycle in dependency graph");
       assertEventCount(3, eventCollector);
     }
@@ -475,10 +475,10 @@ public class BuildViewTest extends BuildViewTestBase {
     scratch.file("badbuild/BUILD", "");
     reporter.removeHandler(failFastHandler);
     update(defaultFlags().with(Flag.KEEP_GOING), "//foo:top");
-    assertContainsEvent("no such target '//badbuild:isweird': target 'isweird' not declared in "
+    assertContainsEvent("no such target '@//badbuild:isweird': target 'isweird' not declared in "
         + "package 'badbuild'");
-    assertContainsEvent("and referenced by '//foo:bad'");
-    assertContainsEvent("in sh_library rule //foo");
+    assertContainsEvent("and referenced by '@//foo:bad'");
+    assertContainsEvent("in sh_library rule @//foo");
     assertContainsEvent("cycle in dependency graph");
     assertEventCount(3, eventCollector);
   }
@@ -507,9 +507,9 @@ public class BuildViewTest extends BuildViewTestBase {
 
     AnalysisResult result = update(defaultFlags().with(Flag.KEEP_GOING), "//y:y");
     assertThat(result.hasError()).isTrue();
-    assertContainsEvent("no such target '//x:z': "
+    assertContainsEvent("no such target '@//x:z': "
         + "target 'z' not declared in package 'x' "
-        + "defined by /workspace/x/BUILD and referenced by '//y:y'");
+        + "defined by /workspace/x/BUILD and referenced by '@//y:y'");
   }
 
   @Test
@@ -628,7 +628,7 @@ public class BuildViewTest extends BuildViewTestBase {
     update(defaultFlags().with(Flag.KEEP_GOING), "//parent:a");
     assertContainsEventWithFrequency("parentisbad", 1);
     assertContainsEventWithFrequency("childisbad", 1);
-    assertContainsEventWithFrequency("and referenced by '//parent:a'", 1);
+    assertContainsEventWithFrequency("and referenced by '@//parent:a'", 1);
   }
 
   /**
@@ -637,7 +637,7 @@ public class BuildViewTest extends BuildViewTestBase {
   @Test
   public void testSkyframe() throws Exception {
     setupDummyRule();
-    String aoutLabel = "//pkg:a.out";
+    String aoutLabel = "@//pkg:a.out";
 
     update(aoutLabel);
 
@@ -696,7 +696,7 @@ public class BuildViewTest extends BuildViewTestBase {
         "testing_dummy_rule(name='foo', ",
         "                   srcs=['a.src'],",
         "                   outs=['a.out'])");
-    String aoutLabel = "//pkg:a.out";
+    String aoutLabel = "@//pkg:a.out";
 
     update("//pkg2:foo");
     update("//pkg:foo");
@@ -835,7 +835,7 @@ public class BuildViewTest extends BuildViewTestBase {
       fail();
     } catch (ViewCreationFailedException e) {
       Truth.assertThat(e.getMessage())
-          .contains("Analysis of target '//foo:query' failed; build aborted");
+          .contains("Analysis of target '@//foo:query' failed; build aborted");
     }
     TrackingAwaiter.INSTANCE.assertNoErrors();
     graph.assertNoExceptions();
@@ -879,7 +879,7 @@ public class BuildViewTest extends BuildViewTestBase {
       fail();
     } catch (ViewCreationFailedException expected) {
       Truth.assertThat(expected.getMessage())
-          .matches("Analysis of target '//foo:(java|cpp)' failed; build aborted.*");
+          .matches("Analysis of target '@//foo:(java|cpp)' failed; build aborted.*");
     }
     assertContainsEvent("cycle in dependency graph");
     assertContainsEvent("This cycle occurred because of a configuration option");
@@ -900,7 +900,7 @@ public class BuildViewTest extends BuildViewTestBase {
           .matches("Loading failed; build aborted.*");
     } catch (ViewCreationFailedException expected) {
       Truth.assertThat(expected.getMessage())
-          .matches("Analysis of target '//foo:test' failed; build aborted.*");
+          .matches("Analysis of target '@//foo:test' failed; build aborted.*");
     }
   }
 
@@ -918,15 +918,15 @@ public class BuildViewTest extends BuildViewTestBase {
       update("//cycle:foo");
       fail();
     } catch (LoadingFailedException | ViewCreationFailedException expected) {
-      assertContainsEvent("in cc_library rule //cycle:foo: cycle in dependency graph:");
+      assertContainsEvent("in cc_library rule @//cycle:foo: cycle in dependency graph:");
       // In the legacy case, SkyframeLabelVisitor prints the loading error for //cycle:foo. In the
       // interleaved case, the SkyframeBuildView only throws the exception, but doesn't print the
       // error - the error is printed by the BuildTool, which isn't used in this test.
       if (defaultFlags().contains(Flag.SKYFRAME_LOADING_PHASE)) {
         assertThat(expected.getMessage())
-            .contains("Analysis of target '//cycle:foo' failed; build aborted");
+            .contains("Analysis of target '@//cycle:foo' failed; build aborted");
       } else {
-        assertContainsEvent("Loading of target '//cycle:foo' failed; build aborted");
+        assertContainsEvent("Loading of target '@//cycle:foo' failed; build aborted");
       }
     }
   }
@@ -952,12 +952,12 @@ public class BuildViewTest extends BuildViewTestBase {
     eventBus.register(analysisFailureRecorder);
     update(eventBus, defaultFlags().with(Flag.KEEP_GOING),
         "//cycle:foo", "//cycle:bat", "//cycle:baz");
-    assertContainsEvent("in cc_library rule //cycle:foo: cycle in dependency graph:");
+    assertContainsEvent("in cc_library rule @//cycle:foo: cycle in dependency graph:");
     assertContainsEvent(
-        "errors encountered while analyzing target '//cycle:foo': it will not be built");
-    assertContainsEvent("in cc_library rule //cycle:bas: cycle in dependency graph:");
+        "errors encountered while analyzing target '@//cycle:foo': it will not be built");
+    assertContainsEvent("in cc_library rule @//cycle:bas: cycle in dependency graph:");
     assertContainsEvent(
-        "errors encountered while analyzing target '//cycle:bat': it will not be built");
+        "errors encountered while analyzing target '@//cycle:bat': it will not be built");
     if (defaultFlags().contains(Flag.SKYFRAME_LOADING_PHASE)) {
       // With interleaved loading and analysis, we can no longer distinguish loading-phase cycles
       // and analysis-phase cycles. This was previously reported as a loading-phase cycle, as it
@@ -965,7 +965,7 @@ public class BuildViewTest extends BuildViewTestBase {
       // test below.
       assertThat(Iterables.transform(analysisFailureRecorder.events, ANALYSIS_EVENT_TO_STRING_PAIR))
           .containsExactly(
-              Pair.of("//cycle:foo", "//cycle:foo"), Pair.of("//cycle:bat", "//cycle:bas"));
+              Pair.of("@//cycle:foo", "@//cycle:foo"), Pair.of("@//cycle:bat", "@//cycle:bas"));
     } else {
       assertThat(Iterables.transform(loadingFailureRecorder.events,
           new Function<Pair<Label, Label>, Pair<String, String>>() {
@@ -974,7 +974,7 @@ public class BuildViewTest extends BuildViewTestBase {
               return Pair.of(labelPair.getFirst().toString(), labelPair.getSecond().toString());
             }
           })).containsExactly(
-              Pair.of("//cycle:foo", "//cycle:foo"), Pair.of("//cycle:bat", "//cycle:bas"));
+              Pair.of("@//cycle:foo", "@//cycle:foo"), Pair.of("@//cycle:bat", "@//cycle:bas"));
     }
   }
 
@@ -992,12 +992,12 @@ public class BuildViewTest extends BuildViewTestBase {
     eventBus.register(analysisFailureRecorder);
     AnalysisResult result = update(eventBus, defaultFlags().with(Flag.KEEP_GOING), "//cycle:foo");
     assertThat(result.hasError()).isTrue();
-    assertContainsEvent("in cc_library rule //cycle:foo: cycle in dependency graph:");
+    assertContainsEvent("in cc_library rule @//cycle:foo: cycle in dependency graph:");
     // This needs to be reported as an anlysis-phase cycle; the cycle only occurs due to the stl
     // command-line option, which is part of the configuration, and which is used due to the
     // late-bound label.
     assertThat(Iterables.transform(analysisFailureRecorder.events, ANALYSIS_EVENT_TO_STRING_PAIR))
-        .containsExactly(Pair.of("//cycle:foo", "//cycle:foo"));
+        .containsExactly(Pair.of("@//cycle:foo", "@//cycle:foo"));
     assertThat(loadingFailureRecorder.events).isEmpty();
   }
 
@@ -1020,7 +1020,7 @@ public class BuildViewTest extends BuildViewTestBase {
     useConfiguration("--experimental_action_listener=//nobuild:bar");
     reporter.removeHandler(failFastHandler);
     String begin = String.format(
-        "Failed to load required %s target: '%s'", "action_listener", "//nobuild:bar");
+        "Failed to load required %s target: '%s'", "action_listener", "@//nobuild:bar");
     try {
       update(defaultFlags().with(Flag.KEEP_GOING), "//nobuild:lib");
       fail();
@@ -1031,7 +1031,7 @@ public class BuildViewTest extends BuildViewTestBase {
       assertThat(e.getMessage()).startsWith(begin);
     }
     assertContainsEventWithFrequency(
-        "no such target '//nobuild:bar': target 'bar' not declared in package 'nobuild'", 1);
+        "no such target '@//nobuild:bar': target 'bar' not declared in package 'nobuild'", 1);
   }
 
   @Test
@@ -1043,7 +1043,7 @@ public class BuildViewTest extends BuildViewTestBase {
       fail();
     } catch (LoadingFailedException | InvalidConfigurationException e) {
       assertContainsEvent(
-          "no such package 'third_party/crosstool/v2': BUILD file not found on package path");
+          "no such package '@//third_party/crosstool/v2': BUILD file not found on package path");
     }
   }
 
@@ -1057,7 +1057,7 @@ public class BuildViewTest extends BuildViewTestBase {
       fail();
     } catch (LoadingFailedException | InvalidConfigurationException e) {
       assertContainsEvent(
-          "no such package 'does/not/exist': BUILD file not found on package path");
+          "no such package '@//does/not/exist': BUILD file not found on package path");
     }
   }
 
@@ -1080,10 +1080,10 @@ public class BuildViewTest extends BuildViewTestBase {
         // TODO(ulfjack): Bazel ignores the --cpu setting and just uses "default" instead. This
         // means all cross-platform Java builds are broken for checked-in JDKs.
         assertContainsEvent(
-            "no such target '//does/not/exist:c-default': target 'c-default' not declared in");
+            "no such target '@//does/not/exist:c-default': target 'c-default' not declared in");
       } else {
         assertContainsEvent(
-            "no such target '//does/not/exist:b-k8': target 'b-k8' not declared in package");
+            "no such target '@//does/not/exist:b-k8': target 'b-k8' not declared in package");
       }
     }
   }
@@ -1101,7 +1101,7 @@ public class BuildViewTest extends BuildViewTestBase {
       fail();
     } catch (LoadingFailedException | InvalidConfigurationException e) {
       assertContainsEvent(
-          "no such target '//xcode:does_not_exist': target 'does_not_exist' not declared");
+          "no such target '@//xcode:does_not_exist': target 'does_not_exist' not declared");
     }
   }
 
@@ -1117,7 +1117,7 @@ public class BuildViewTest extends BuildViewTestBase {
       update("//z/b:b");
       fail();
     } catch (LoadingFailedException | ViewCreationFailedException expected) {
-      assertContainsEvent("no such package 'nonexistent'");
+      assertContainsEvent("no such package '@//nonexistent'");
     }
   }
 
@@ -1134,7 +1134,7 @@ public class BuildViewTest extends BuildViewTestBase {
       update("//z/b:b");
       fail();
     } catch (LoadingFailedException | ViewCreationFailedException expected) {
-      assertContainsEvent("no such package 'b'");
+      assertContainsEvent("no such package '@//b'");
     }
   }
 

@@ -468,7 +468,7 @@ public class CcCommonConfiguredTargetTest extends BuildViewTestCase {
         "       deps = [':lib1'],",
         "       alwayslink=1)");
     reporter.removeHandler(failFastHandler);
-    getPackageManager().getPackage(reporter, PackageIdentifier.createInDefaultRepo("cc/common"));
+    getPackageManager().getPackage(reporter, PackageIdentifier.createInMainRepo("cc/common"));
     assertContainsEvent(
         "//cc/common:testlib: no such attribute 'alwayslink'" + " in 'cc_test' rule");
   }
@@ -496,7 +496,7 @@ public class CcCommonConfiguredTargetTest extends BuildViewTestCase {
         "badincludes",
         "flaky_lib",
         // message:
-        "in includes attribute of cc_library rule //badincludes:flaky_lib: "
+        "in includes attribute of cc_library rule @//badincludes:flaky_lib: "
             + "ignoring invalid absolute path '//third_party/procps/proc'",
         // build file:
         "cc_library(name = 'flaky_lib',",
@@ -593,7 +593,7 @@ public class CcCommonConfiguredTargetTest extends BuildViewTestCase {
         "badlib",
         "lib_with_dash_static",
         // message:
-        "in linkopts attribute of cc_library rule //badlib:lib_with_dash_static: "
+        "in linkopts attribute of cc_library rule @//badlib:lib_with_dash_static: "
             + "Using '-static' here won't work. Did you mean to use 'linkstatic=1' instead?",
         // build file:
         "cc_library(name = 'lib_with_dash_static',",
@@ -732,8 +732,8 @@ public class CcCommonConfiguredTargetTest extends BuildViewTestCase {
     checkWarning(
         "hdrs_filetypes",
         "foo",
-        "in hdrs attribute of cc_library rule //hdrs_filetypes:foo: file 'foo.a' "
-            + "from target '//hdrs_filetypes:foo.a' is not allowed in hdrs",
+        "in hdrs attribute of cc_library rule @//hdrs_filetypes:foo: file 'foo.a' "
+            + "from target '@//hdrs_filetypes:foo.a' is not allowed in hdrs",
         "cc_library(name = 'foo',",
         "    srcs = [],",
         "    hdrs = ['foo.a'])");
@@ -750,7 +750,7 @@ public class CcCommonConfiguredTargetTest extends BuildViewTestCase {
       update(Arrays.asList("//x:x"), true, 10, false, new EventBus());
       fail("found non-existing target");
     } catch (LoadingFailedException expected) {
-      assertThat(expected.getMessage()).contains("Failed to load required STL target: '//x:blah'");
+      assertThat(expected.getMessage()).contains("Failed to load required STL target: '@//x:blah'");
     }
 
     try {
@@ -759,7 +759,7 @@ public class CcCommonConfiguredTargetTest extends BuildViewTestCase {
       fail("found non-existsing target");
     } catch (LoadingFailedException expected) {
       assertThat(expected.getMessage())
-          .contains("Failed to load required STL target: '//blah:blah'");
+          .contains("Failed to load required STL target: '@//blah:blah'");
     }
 
     // Without -k.

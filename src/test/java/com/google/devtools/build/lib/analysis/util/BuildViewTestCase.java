@@ -311,7 +311,7 @@ public abstract class BuildViewTestCase extends FoundationTestCase {
         packageCacheOptions.defaultVisibility, true,
         7, ruleClassProvider.getDefaultsPackageContent(optionsParser),
         UUID.randomUUID());
-    skyframeExecutor.setDeletedPackages(ImmutableSet.copyOf(packageCacheOptions.deletedPackages));
+    skyframeExecutor.setDeletedPackages(ImmutableSet.copyOf(packageCacheOptions.getDeletedPackages()));
   }
 
   protected void setPackageCacheOptions(String... options) throws Exception {
@@ -377,7 +377,7 @@ public abstract class BuildViewTestCase extends FoundationTestCase {
     view.setConfigurationsForTesting(masterConfig);
 
     view.setArtifactRoots(
-        ImmutableMap.of(PackageIdentifier.createInDefaultRepo(""), rootDirectory), masterConfig);
+        ImmutableMap.of(PackageIdentifier.createInMainRepo(""), rootDirectory), masterConfig);
     simulateLoadingPhase();
   }
 
@@ -1466,7 +1466,7 @@ public abstract class BuildViewTestCase extends FoundationTestCase {
     reporter.removeHandler(failFastHandler);
     scratch.file("" + packageName + "/BUILD", lines);
     return getPackageManager()
-        .getPackage(reporter, PackageIdentifier.createInDefaultRepo(packageName));
+        .getPackage(reporter, PackageIdentifier.createInMainRepo(packageName));
   }
 
   /**

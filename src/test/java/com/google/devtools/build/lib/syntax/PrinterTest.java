@@ -57,9 +57,9 @@ public class PrinterTest {
     assertEquals("3", Printer.repr(3));
     assertEquals("None", Printer.repr(Runtime.NONE));
 
-    assertEquals("//x:x", Printer.str(
+    assertEquals("@//x:x", Printer.str(
         Label.parseAbsolute("//x")));
-    assertEquals("\"//x:x\"", Printer.repr(
+    assertEquals("\"@//x:x\"", Printer.repr(
         Label.parseAbsolute("//x")));
 
     List<?> list = MutableList.of(null, "foo", "bar");

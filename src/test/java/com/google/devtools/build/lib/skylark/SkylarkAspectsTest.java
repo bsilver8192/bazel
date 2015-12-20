@@ -74,7 +74,7 @@ public class SkylarkAspectsTest extends AnalysisTestCase {
                     return configuredTarget.getLabel().toString();
                   }
                 }))
-        .containsExactly("//test:xxx");
+        .containsExactly("@//test:xxx");
     assertThat(
             transform(
                 analysisResult.getAspects(),
@@ -88,7 +88,7 @@ public class SkylarkAspectsTest extends AnalysisTestCase {
                         aspectValue.getLabel().toString());
                   }
                 }))
-        .containsExactly("//test:aspect.bzl%MyAspect(//test:xxx)");
+        .containsExactly("@//test:aspect.bzl%MyAspect(@//test:xxx)");
   }
 
   @Test
@@ -163,7 +163,7 @@ public class SkylarkAspectsTest extends AnalysisTestCase {
                     return configuredTarget.getLabel().toString();
                   }
                 }))
-        .containsExactly("//test:xxx");
+        .containsExactly("@//test:xxx");
     AspectValue aspectValue = analysisResult.getAspects().iterator().next();
     SkylarkProviders skylarkProviders =
         aspectValue.getConfiguredAspect().getProvider(SkylarkProviders.class);
@@ -181,7 +181,7 @@ public class SkylarkAspectsTest extends AnalysisTestCase {
                     return o.toString();
                   }
                 }))
-        .containsExactly("//test:xxx", "//test:yyy");
+        .containsExactly("@//test:xxx", "@//test:yyy");
     Object ruleKinds = skylarkProviders.getValue("rule_kinds");
     assertThat(ruleKinds).isInstanceOf(SkylarkNestedSet.class);
     assertThat((SkylarkNestedSet) ruleKinds).containsExactly("java_library");
@@ -276,7 +276,7 @@ public class SkylarkAspectsTest extends AnalysisTestCase {
                 return configuredTarget.getLabel().toString();
               }
             }))
-        .containsExactly("//test:xxx");
+        .containsExactly("@//test:xxx");
     AspectValue aspectValue = analysisResult.getAspects().iterator().next();
     OutputGroupProvider outputGroupProvider =
         aspectValue.getConfiguredAspect().getProvider(OutputGroupProvider.class);
@@ -337,7 +337,7 @@ public class SkylarkAspectsTest extends AnalysisTestCase {
                 return configuredTarget.getLabel().toString();
               }
             }))
-        .containsExactly("//test:xxx");
+        .containsExactly("@//test:xxx");
     ConfiguredTarget target = analysisResult.getTargetsToBuild().iterator().next();
     SkylarkProviders skylarkProviders = target.getProvider(SkylarkProviders.class);
     assertThat(skylarkProviders).isNotNull();
@@ -354,7 +354,7 @@ public class SkylarkAspectsTest extends AnalysisTestCase {
                 return o.toString();
               }
             }))
-        .containsExactly("//test:yyy");
+        .containsExactly("@//test:yyy");
   }
 
   @Test
@@ -377,10 +377,10 @@ public class SkylarkAspectsTest extends AnalysisTestCase {
     }
     assertContainsEvent(
         "ERROR /workspace/test/BUILD:1:1: in "
-            + "//test:aspect.bzl%MyAspect aspect on java_library rule //test:xxx: \n"
+            + "@//test:aspect.bzl%MyAspect aspect on java_library rule @//test:xxx: \n"
             + "Traceback (most recent call last):\n"
             + "\tFile \"/workspace/test/BUILD\", line 1\n"
-            + "\t\t//test:aspect.bzl%MyAspect(...)\n"
+            + "\t\t@//test:aspect.bzl%MyAspect(...)\n"
             + "\tFile \"/workspace/test/aspect.bzl\", line 2, in _impl\n"
             + "\t\t1 / 0\n"
             + "integer division by zero");
@@ -428,8 +428,8 @@ public class SkylarkAspectsTest extends AnalysisTestCase {
       // expect to fail.
     }
     assertContainsEvent(
-        "ERROR /workspace/test/BUILD:1:1: in //test:aspect.bzl%MyAspect aspect on java_library rule"
-        + " //test:xxx: \n"
+        "ERROR /workspace/test/BUILD:1:1: in @//test:aspect.bzl%MyAspect aspect on java_library rule"
+        + " @//test:xxx: \n"
         + "\n"
         + "\n"
         + "/workspace/test/aspect.bzl:4:11: Value of provider 'x' is of an illegal type: function");
@@ -456,7 +456,7 @@ public class SkylarkAspectsTest extends AnalysisTestCase {
     }
     assertContainsEvent(
         "ERROR /workspace/test/BUILD:1:1: in "
-            + "//test:aspect.bzl%MyAspect aspect on java_library rule //test:xxx: \n"
+            + "@//test:aspect.bzl%MyAspect aspect on java_library rule @//test:xxx: \n"
             + "\n"
             + "\n"
             + "The following files have no generating action:\n"
@@ -476,7 +476,7 @@ public class SkylarkAspectsTest extends AnalysisTestCase {
     } catch (ViewCreationFailedException e) {
       // expect to fail.
     }
-    assertContainsEvent("MyAspect from //test:aspect.bzl is not an aspect");
+    assertContainsEvent("MyAspect from @//test:aspect.bzl is not an aspect");
   }
 
   @Test
@@ -492,7 +492,7 @@ public class SkylarkAspectsTest extends AnalysisTestCase {
     } catch (ViewCreationFailedException e) {
       // expect to fail.
     }
-    assertContainsEvent("MyAspect from //test:aspect.bzl is not an aspect");
+    assertContainsEvent("MyAspect from @//test:aspect.bzl is not an aspect");
   }
 
   @Test
@@ -508,7 +508,7 @@ public class SkylarkAspectsTest extends AnalysisTestCase {
       // expect to fail.
     }
     assertContainsEvent(
-        "Extension file not found. Unable to load file '//test:aspect.bzl': "
+        "Extension file not found. Unable to load file '@//test:aspect.bzl': "
         + "file doesn't exist or isn't a file");
   }
 

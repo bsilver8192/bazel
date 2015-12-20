@@ -698,7 +698,7 @@ public final class PackageFactory {
                   inputFile.getName()));
         }
         if (license == null && pkgBuilder.getDefaultLicense() == License.NO_LICENSE
-            && pkgBuilder.getBuildFileLabel().toString().startsWith("//third_party/")) {
+            && pkgBuilder.getBuildFileLabel().toString().startsWith("@//third_party/")) {
           throw new EvalException(ast.getLocation(),
               "third-party file '" + inputFile.getName() + "' lacks a license declaration "
               + "with one of the following types: notice, reciprocal, permissive, "

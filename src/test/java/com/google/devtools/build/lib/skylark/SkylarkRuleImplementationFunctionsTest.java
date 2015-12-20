@@ -454,9 +454,9 @@ public class SkylarkRuleImplementationFunctionsTest extends SkylarkTestCase {
     // Multiple targets and "location" should result in an error
     checkReportedErrorStartsWith(
         ruleContext,
-        "in genrule rule //foo:bar: label '//foo:gl' "
+        "in genrule rule @//foo:bar: label '@//foo:gl' "
             + "in $(location) expression expands to more than one file, please use $(locations "
-            + "//foo:gl) instead.",
+            + "@//foo:gl) instead.",
         "ruleContext.expand_location('$(location :gl)')");
 
     // We have to use "locations" for multiple targets
@@ -470,7 +470,7 @@ public class SkylarkRuleImplementationFunctionsTest extends SkylarkTestCase {
 
     checkReportedErrorStartsWith(
         ruleContext,
-        "in genrule rule //foo:bar: label '//foo:abc' in $(locations) expression "
+        "in genrule rule @//foo:bar: label '@//foo:abc' in $(locations) expression "
             + "is not a declared prerequisite of this rule",
         "ruleContext.expand_location('$(locations :abc)')");
   }

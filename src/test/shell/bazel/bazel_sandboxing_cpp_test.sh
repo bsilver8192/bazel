@@ -168,7 +168,7 @@ EOF
   bazel build --spawn_strategy=standalone //examples/cpp:hello-lib &> $TEST_log \
     && fail "build should not have succeeded with missing header file"
 
-  fgrep "undeclared inclusion(s) in rule '//examples/cpp:hello-lib'" $TEST_log \
+  fgrep "undeclared inclusion(s) in rule '@//examples/cpp:hello-lib'" $TEST_log \
     || fail "could not find 'undeclared inclusion' error message in bazel output"
 }
 

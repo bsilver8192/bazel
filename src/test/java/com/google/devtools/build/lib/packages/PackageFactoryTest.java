@@ -120,8 +120,8 @@ public class PackageFactoryTest extends PackageFactoryTestBase {
     } catch (NoSuchPackageException e) {
       assertThat(e.getMessage())
           .contains(
-              "no such package 'not even a legal label': "
-                  + "illegal package name: 'not even a legal label' ");
+              "no such package '@//not even a legal label': "
+                  + "illegal package name: '@//not even a legal label' ");
     }
   }
 
@@ -176,7 +176,7 @@ public class PackageFactoryTest extends PackageFactoryTestBase {
 
     Package pkg = packages.createPackage("has_dupe", buildFile);
     events.assertContainsError(
-        "Label '//has_dupe:dep' is duplicated in the 'deps' " + "attribute of rule 'has_dupe'");
+        "Label '@//has_dupe:dep' is duplicated in the 'deps' " + "attribute of rule 'has_dupe'");
     assertTrue(pkg.containsErrors());
     assertNotNull(pkg.getRule("has_dupe"));
     assertNotNull(pkg.getRule("dep"));
@@ -329,7 +329,7 @@ public class PackageFactoryTest extends PackageFactoryTestBase {
     } catch (NoSuchTargetException e) {
       assertThat(e)
           .hasMessage(
-              "no such target '//foo:A': "
+              "no such target '@//foo:A': "
                   + "target 'A' not declared in package 'foo' defined by /foo/BUILD");
     }
 
@@ -348,7 +348,7 @@ public class PackageFactoryTest extends PackageFactoryTestBase {
         scratch.file("/third_party/foo/BUILD", "# line 1", "cc_library(name='bar')", "# line 3");
     Package pkg = packages.createPackage("third_party/foo", buildFile);
     events.assertContainsError(
-        "third-party rule '//third_party/foo:bar' lacks a license "
+        "third-party rule '@//third_party/foo:bar' lacks a license "
             + "declaration with one of the following types: "
             + "notice, reciprocal, permissive, restricted, unencumbered, by_exception_only");
     assertTrue(pkg.containsErrors());
@@ -486,7 +486,7 @@ public class PackageFactoryTest extends PackageFactoryTestBase {
     } catch (NoSuchTargetException e) {
       assertThat(e)
           .hasMessage(
-              "no such target '//x:y.cc': "
+              "no such target '@//x:y.cc': "
                   + "target 'y.cc' not declared in package 'x'; "
                   + "however, a source file of this name exists.  "
                   + "(Perhaps add 'exports_files([\"y.cc\"])' to x/BUILD?) "
@@ -499,7 +499,7 @@ public class PackageFactoryTest extends PackageFactoryTestBase {
     } catch (NoSuchTargetException e) {
       assertThat(e)
           .hasMessage(
-              "no such target '//x:z.cc': "
+              "no such target '@//x:z.cc': "
                   + "target 'z.cc' not declared in package 'x' defined by /x/BUILD");
     }
 
@@ -509,7 +509,7 @@ public class PackageFactoryTest extends PackageFactoryTestBase {
     } catch (NoSuchTargetException e) {
       assertThat(e)
           .hasMessage(
-              "no such target '//x:dir': target 'dir' not declared in package 'x'; "
+              "no such target '@//x:dir': target 'dir' not declared in package 'x'; "
                   + "however, a source directory of this name exists.  "
                   + "(Perhaps add 'exports_files([\"dir\"])' to x/BUILD, "
                   + "or define a filegroup?) defined by /x/BUILD");
@@ -559,14 +559,14 @@ public class PackageFactoryTest extends PackageFactoryTestBase {
 
     assertThat(
             Lists.newArrayList(
-                Label.create("fruit", "data/apple"), Label.create("fruit", "data/pear")))
+                Label.create("@//fruit", "data/apple"), Label.create("@//fruit", "data/pear")))
         .containsExactlyElementsIn(yesFiles);
 
     assertThat(
             Lists.newArrayList(
-                Label.create("fruit", "data/apple"),
-                Label.create("fruit", "data/pear"),
-                Label.create("fruit", "data/berry")))
+                Label.create("@//fruit", "data/apple"),
+                Label.create("@//fruit", "data/pear"),
+                Label.create("@//fruit", "data/berry")))
         .containsExactlyElementsIn(noFiles);
   }
 
@@ -1066,14 +1066,14 @@ public class PackageFactoryTest extends PackageFactoryTestBase {
   @Test
   public void testEnvironmentGroupMissingTarget() throws Exception {
     expectEvalError(
-        "environment //pkg:foo does not exist",
+        "environment @//pkg:foo does not exist",
         "environment_group(name='group', environments = [':foo'], defaults = [':foo'])");
   }
 
   @Test
   public void testEnvironmentGroupWrongTargetType() throws Exception {
     expectEvalError(
-        "//pkg:foo is not a valid environment",
+        "@//pkg:foo is not a valid environment",
         "cc_library(name = 'foo')",
         "environment_group(name='group', environments = [':foo'], defaults = [':foo'])");
   }
@@ -1081,14 +1081,14 @@ public class PackageFactoryTest extends PackageFactoryTestBase {
   @Test
   public void testEnvironmentGroupWrongPackage() throws Exception {
     expectEvalError(
-        "//foo:foo is not in the same package as group //pkg:group",
+        "@//foo:foo is not in the same package as group @//pkg:group",
         "environment_group(name='group', environments = ['//foo'], defaults = ['//foo'])");
   }
 
   @Test
   public void testEnvironmentGroupInvalidDefault() throws Exception {
     expectEvalError(
-        "default //pkg:bar is not a declared environment for group //pkg:group",
+        "default @//pkg:bar is not a declared environment for group @//pkg:group",
         "environment(name = 'foo')",
         "environment(name = 'bar')",
         "environment_group(name='group', environments = [':foo'], defaults = [':bar'])");
@@ -1097,7 +1097,7 @@ public class PackageFactoryTest extends PackageFactoryTestBase {
   @Test
   public void testEnvironmentGroupDuplicateEnvironments() throws Exception {
     expectEvalError(
-        "label '//pkg:foo' is duplicated in the 'environments' list of 'group'",
+        "label '@//pkg:foo' is duplicated in the 'environments' list of 'group'",
         "environment(name = 'foo')",
         "environment_group(name='group', environments = [':foo', ':foo'], defaults = [':foo'])");
   }
@@ -1105,7 +1105,7 @@ public class PackageFactoryTest extends PackageFactoryTestBase {
   @Test
   public void testEnvironmentGroupDuplicateDefaults() throws Exception {
     expectEvalError(
-        "label '//pkg:foo' is duplicated in the 'defaults' list of 'group'",
+        "label '@//pkg:foo' is duplicated in the 'defaults' list of 'group'",
         "environment(name = 'foo')",
         "environment_group(name='group', environments = [':foo'], defaults = [':foo', ':foo'])");
   }
@@ -1122,7 +1122,7 @@ public class PackageFactoryTest extends PackageFactoryTestBase {
   @Test
   public void testMultipleEnvironmentGroupsConflictingMembership() throws Exception {
     expectEvalError(
-        "environment //pkg:foo belongs to both //pkg:bar_group and //pkg:foo_group",
+        "environment @//pkg:foo belongs to both @//pkg:bar_group and @//pkg:foo_group",
         "environment(name = 'foo')",
         "environment(name = 'bar')",
         "environment_group(name='foo_group', environments = [':foo'], defaults = [':foo'])",
@@ -1132,7 +1132,7 @@ public class PackageFactoryTest extends PackageFactoryTestBase {
   @Test
   public void testFulfillsReferencesWrongTargetType() throws Exception {
     expectEvalError(
-        "in \"fulfills\" attribute of //pkg:foo: //pkg:bar is not a valid environment",
+        "in \"fulfills\" attribute of @//pkg:foo: @//pkg:bar is not a valid environment",
         "environment(name = 'foo', fulfills = [':bar'])",
         "cc_library(name = 'bar')",
         "environment_group(name='foo_group', environments = [':foo'], defaults = [])");
@@ -1141,7 +1141,7 @@ public class PackageFactoryTest extends PackageFactoryTestBase {
   @Test
   public void testFulfillsNotInEnvironmentGroup() throws Exception {
     expectEvalError(
-        "in \"fulfills\" attribute of //pkg:foo: //pkg:bar is not a member of this group",
+        "in \"fulfills\" attribute of @//pkg:foo: @//pkg:bar is not a member of this group",
         "environment(name = 'foo', fulfills = [':bar'])",
         "environment(name = 'bar')",
         "environment_group(name='foo_group', environments = [':foo'], defaults = [])");
@@ -1162,14 +1162,14 @@ public class PackageFactoryTest extends PackageFactoryTestBase {
   @Test
   public void testPackageDefaultCompatibilityDuplicates() throws Exception {
     expectEvalError(
-        "'//foo:foo' is duplicated in the 'default_compatible_with' list",
+        "'@//foo:foo' is duplicated in the 'default_compatible_with' list",
         "package(default_compatible_with=['//foo', '//bar', '//foo'])");
   }
 
   @Test
   public void testPackageDefaultRestrictionDuplicates() throws Exception {
     expectEvalError(
-        "'//foo:foo' is duplicated in the 'default_restricted_to' list",
+        "'@//foo:foo' is duplicated in the 'default_restricted_to' list",
         "package(default_restricted_to=['//foo', '//bar', '//foo'])");
   }
 

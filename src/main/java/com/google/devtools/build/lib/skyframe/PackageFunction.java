@@ -569,6 +569,8 @@ public class PackageFunction implements SkyFunction {
       Environment env,
       SkylarkImportLookupFunction skylarkImportLookupFunctionForInlining)
       throws PackageFunctionException, InterruptedException {
+    Preconditions.checkArgument(!packageId.getRepository().isDefault());
+
     ImmutableList<SkylarkImport> imports = buildFileAST.getImports();
     Map<String, Extension> importMap = Maps.newHashMapWithExpectedSize(imports.size());
     ImmutableList.Builder<SkylarkFileDependency> fileDependencies = ImmutableList.builder();
@@ -1243,7 +1245,7 @@ public class PackageFunction implements SkyFunction {
   }
 
   static boolean isDefaultsPackage(PackageIdentifier packageIdentifier) {
-    return packageIdentifier.getRepository().isDefault()
+    return packageIdentifier.getRepository().isMain()
         && packageIdentifier.getPackageFragment().equals(DEFAULTS_PACKAGE_NAME);
   }
 }

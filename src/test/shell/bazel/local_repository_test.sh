@@ -418,7 +418,8 @@ EOF
 
   bazel build //a:a >& $TEST_log && fail "Building //a:a should error out"
   expect_log "** Please add the following dependencies:"
-  expect_log "@x_repo//x  to //a:a"
+  # TODO(bsilver16384@gmail.com): Fix the @@.
+  expect_log "@x_repo//x  to @@//a:a"
 }
 
 function test_external_includes() {
@@ -782,7 +783,7 @@ EOF
 
   bazel build @r//:public >& $TEST_log || fail "failed to build public target"
   bazel build @r//:private >& $TEST_log && fail "could build private target"
-  expect_log "Target '//:private' is not visible from target '@r//:private'"
+  expect_log "Target '@//:private' is not visible from target '@r//:private'"
 }
 
 function test_load_in_remote_repository() {

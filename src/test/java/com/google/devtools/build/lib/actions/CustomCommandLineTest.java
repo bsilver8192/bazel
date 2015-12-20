@@ -58,7 +58,7 @@ public class CustomCommandLineTest {
   @Test
   public void testLabelArgs() throws LabelSyntaxException {
     CustomCommandLine cl = CustomCommandLine.builder().add(Label.parseAbsolute("//a:b")).build();
-    assertEquals(ImmutableList.of("//a:b"), cl.arguments());
+    assertEquals(ImmutableList.of("@//a:b"), cl.arguments());
   }
 
   @Test

@@ -59,22 +59,22 @@ public class SkylarkImportLookupFunctionTest extends BuildViewTestCase {
   public void testSkylarkImportLabels() throws Exception {
     scratch.file("pkg1/BUILD");
     scratch.file("pkg1/ext.bzl");
-    checkSuccessfulLookup("//pkg1:ext.bzl");
+    checkSuccessfulLookup("@//pkg1:ext.bzl");
 
     scratch.file("pkg2/BUILD");
     scratch.file("pkg2/dir/ext.bzl");
-    checkSuccessfulLookup("//pkg2:dir/ext.bzl");
+    checkSuccessfulLookup("@//pkg2:dir/ext.bzl");
 
     scratch.file("dir/pkg3/BUILD");
     scratch.file("dir/pkg3/dir/ext.bzl");
-    checkSuccessfulLookup("//dir/pkg3:dir/ext.bzl");
+    checkSuccessfulLookup("@//dir/pkg3:dir/ext.bzl");
   }
 
   @Test
   public void testSkylarkImportLabelsAlternativeRoot() throws Exception {
     scratch.file("/root_2/pkg4/BUILD");
     scratch.file("/root_2/pkg4/ext.bzl");
-    checkSuccessfulLookup("//pkg4:ext.bzl");
+    checkSuccessfulLookup("@//pkg4:ext.bzl");
   }
 
   @Test
@@ -82,7 +82,7 @@ public class SkylarkImportLookupFunctionTest extends BuildViewTestCase {
     scratch.file("dir1/BUILD");
     scratch.file("dir1/dir2/BUILD");
     scratch.file("dir1/dir2/ext.bzl");
-    checkSuccessfulLookup("//dir1/dir2:ext.bzl");
+    checkSuccessfulLookup("@//dir1/dir2:ext.bzl");
   }
 
   @Test
@@ -178,7 +178,7 @@ public class SkylarkImportLookupFunctionTest extends BuildViewTestCase {
     assertTrue(result.hasError());
     ErrorInfo errorInfo = result.getError(skylarkImportLookupKey);
     String errorMessage = errorInfo.getException().getMessage();
-    assertEquals("Extension file not found. Unable to load package for '//pkg:ext.bzl': "
+    assertEquals("Extension file not found. Unable to load package for '@//pkg:ext.bzl': "
         + "BUILD file not found on package path", errorMessage);
   }
 
@@ -195,7 +195,7 @@ public class SkylarkImportLookupFunctionTest extends BuildViewTestCase {
     assertTrue(result.hasError());
     ErrorInfo errorInfo = result.getError(skylarkImportLookupKey);
     String errorMessage = errorInfo.getException().getMessage();
-    assertEquals("Extension file not found. Unable to load package for '//pkg:ext.bzl': "
+    assertEquals("Extension file not found. Unable to load package for '@//pkg:ext.bzl': "
         + "BUILD file not found on package path", errorMessage);
   }
 

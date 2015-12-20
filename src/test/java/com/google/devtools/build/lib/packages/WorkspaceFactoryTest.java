@@ -76,7 +76,7 @@ public class WorkspaceFactoryTest {
         "    path = '/foo/bar',",
         ")");
     assertThat(helper.getParserError()).contains(
-        "local_repository rule //external:foo/bar's name field must be a legal workspace name");
+        "local_repository rule @//external:foo/bar's name field must be a legal workspace name");
   }
 
   @Test

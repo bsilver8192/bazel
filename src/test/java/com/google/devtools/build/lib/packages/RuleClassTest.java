@@ -206,7 +206,7 @@ public class RuleClassTest extends PackageLoadingTestCase {
 
   private static final int TEST_RULE_DEFINED_AT_LINE = 42;
 
-  private static final String TEST_RULE_LABEL = "//" + TEST_PACKAGE_NAME + ":" + TEST_RULE_NAME;
+  private static final String TEST_RULE_LABEL = "@//" + TEST_PACKAGE_NAME + ":" + TEST_RULE_NAME;
 
   private Path testBuildfilePath;
   private Location testRuleLocation;
@@ -219,7 +219,7 @@ public class RuleClassTest extends PackageLoadingTestCase {
   }
 
   private Package.Builder createDummyPackageBuilder() {
-    return new Builder(PackageIdentifier.createInDefaultRepo(TEST_PACKAGE_NAME), "TESTING")
+    return new Builder(PackageIdentifier.createInMainRepo(TEST_PACKAGE_NAME), "TESTING")
         .setFilename(testBuildfilePath)
         .setMakeEnv(new MakeEnvironment.Builder());
   }
@@ -245,9 +245,9 @@ public class RuleClassTest extends PackageLoadingTestCase {
     createRule(depsRuleClass, "depsRule", attributeValues, testRuleLocation);
 
     assertSame(3, eventCollector.count());
-    assertDupError("//testpackage:dup1", "list1", "depsRule");
-    assertDupError("//testpackage:dup1", "list3", "depsRule");
-    assertDupError("//testpackage:dup2", "list3", "depsRule");
+    assertDupError("@//testpackage:dup1", "list1", "depsRule");
+    assertDupError("@//testpackage:dup1", "list3", "depsRule");
+    assertDupError("@//testpackage:dup2", "list3", "depsRule");
   }
 
   private void assertDupError(String label, String attrName, String ruleName) {
@@ -322,7 +322,7 @@ public class RuleClassTest extends PackageLoadingTestCase {
 
     // Test attribute access:
     AttributeMap attributes = RawAttributeMapper.of(rule);
-    assertEquals("//default:label",
+    assertEquals("@//default:label",
                  attributes.get("my-label-attr", BuildType.LABEL).toString());
     assertEquals(42,
                  attributes.get("my-integer-attr", Type.INTEGER).intValue());
@@ -336,7 +336,7 @@ public class RuleClassTest extends PackageLoadingTestCase {
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Attribute my-labellist-attr is of type list(label) "
-          + "and not of type string in rule //testpackage:my-rule-A");
+          + "and not of type string in rule @//testpackage:my-rule-A");
     }
   }
 
@@ -643,7 +643,7 @@ public class RuleClassTest extends PackageLoadingTestCase {
 
     assertSame(1, eventCollector.count());
     assertContainsEvent(getErrorMsgNonEmptyList(
-        "list", "ruleMNE", "//testpackage:ruleTestMNE"));
+        "list", "ruleMNE", "@//testpackage:ruleTestMNE"));
   }
 
   private RuleClass setupNonEmpty(Attribute... attributes) {
@@ -674,7 +674,7 @@ public class RuleClassTest extends PackageLoadingTestCase {
     assertSame(1, eventCollector.count());
 
     assertContainsEvent(getErrorMsgNonEmptyList(
-        "list", "ruleMNE", "//testpackage:ruleTestMNE"));
+        "list", "ruleMNE", "@//testpackage:ruleTestMNE"));
   }
 
   private Rule createRule(RuleClass ruleClass, String name, Map<String, Object> attributeValues,
@@ -742,7 +742,7 @@ public class RuleClassTest extends PackageLoadingTestCase {
     createRule(childRuleClass, "child_rule", childValues, testRuleLocation);
 
     assertSame(1, eventCollector.count());
-    assertContainsEvent("//testpackage:child_rule: missing value for mandatory "
+    assertContainsEvent("@//testpackage:child_rule: missing value for mandatory "
         + "attribute 'attr' in 'child_rule' rule");
   }
 

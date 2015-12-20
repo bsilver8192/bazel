@@ -64,10 +64,10 @@ public class CircularDependencyTest extends BuildViewTestCase {
   public void testThreeLongPackageGroupCycle() throws Exception {
     String expectedEvent =
         "cycle in dependency graph:\n"
-            + "    //cycle:superman\n"
-            + "  * //cycle:rock\n"
-            + "    //cycle:paper\n"
-            + "    //cycle:scissors";
+            + "    @//cycle:superman\n"
+            + "  * @//cycle:rock\n"
+            + "    @//cycle:paper\n"
+            + "    @//cycle:scissors";
     checkError(
         "cycle",
         "superman",
@@ -133,9 +133,9 @@ public class CircularDependencyTest extends BuildViewTestCase {
     checkError(
         "a",
         "rule1",
-        "in cc_library rule //a:rule1: cycle in dependency graph:\n"
-            + "  * //a:rule1\n"
-            + "    //b:rule2",
+        "in cc_library rule @//a:rule1: cycle in dependency graph:\n"
+            + "  * @//a:rule1\n"
+            + "    @//b:rule2",
         "cc_library(name='rule1',",
         "           deps=['//b:rule2'])");
   }
@@ -146,7 +146,7 @@ public class CircularDependencyTest extends BuildViewTestCase {
     scratch.file(
         "x/BUILD", "java_library(name='x', deps=['y'])", "java_library(name='y', deps=['x'])");
     getConfiguredTarget("//x");
-    assertContainsEvent("in java_library rule //x:x: cycle in dependency graph");
+    assertContainsEvent("in java_library rule @//x:x: cycle in dependency graph");
   }
 
   @Test
@@ -186,6 +186,6 @@ public class CircularDependencyTest extends BuildViewTestCase {
         "genrule(name='b', srcs=['c'], tools=['c'], outs=['b.out'], cmd=':')",
         "genrule(name='c', srcs=['b.out'], outs=[], cmd=':')");
     getConfiguredTarget("//x:b"); // doesn't crash!
-    assertContainsEvent("in genrule rule //x:b: cycle in dependency graph");
+    assertContainsEvent("in genrule rule @//x:b: cycle in dependency graph");
   }
 }

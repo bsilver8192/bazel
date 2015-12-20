@@ -308,7 +308,7 @@ public class ArtifactTest {
 
   @Test
   public void testSerializeToStringWithOwner() throws Exception {
-    assertEquals("b/c /3 //foo:bar",
+    assertEquals("b/c /3 @//foo:bar",
         new Artifact(scratch.file("/aa/b/c"), Root.asDerivedRoot(scratch.dir("/aa")),
             new PathFragment("b/c"),
             new LabelArtifactOwner(Label.parseAbsoluteUnchecked("//foo:bar"))).serializeToString());

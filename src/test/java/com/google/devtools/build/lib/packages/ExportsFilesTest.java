@@ -52,7 +52,7 @@ public class ExportsFilesTest {
   @Test
   public void testExportsFilesRegistersFilesWithPackage() throws Exception {
     List<String> names = getFileNamesOf(pkg());
-    String expected = "//pkg:BUILD //pkg:bar.txt //pkg:foo.txt";
+    String expected = "@//pkg:BUILD @//pkg:bar.txt @//pkg:foo.txt";
     assertEquals(expected, Joiner.on(' ').join(names));
   }
 
@@ -74,7 +74,7 @@ public class ExportsFilesTest {
       pkg().getTarget("baz.txt");
       fail();
     } catch (NoSuchTargetException e) {
-      assertThat(e).hasMessage("no such target '//pkg:baz.txt':"
+      assertThat(e).hasMessage("no such target '@//pkg:baz.txt':"
           + " target 'baz.txt' not declared in package 'pkg' defined by /workspace/pkg/BUILD");
     }
   }

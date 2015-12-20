@@ -711,7 +711,7 @@ public abstract class SkyframeExecutor implements WalkableGraphFactory {
           execPath.getParentDirectory(), "Must pass in files, not root directory");
       Preconditions.checkArgument(!parent.isAbsolute(), execPath);
       packageKeys.add(ContainingPackageLookupValue.key(
-          PackageIdentifier.createInDefaultRepo(parent)));
+          PackageIdentifier.createInMainRepo(parent)));
     }
 
     EvaluationResult<ContainingPackageLookupValue> result;
@@ -737,7 +737,7 @@ public abstract class SkyframeExecutor implements WalkableGraphFactory {
     Map<PathFragment, Root> roots = new HashMap<>();
     for (PathFragment execPath : execPaths) {
       ContainingPackageLookupValue value = result.get(ContainingPackageLookupValue.key(
-          PackageIdentifier.createInDefaultRepo(execPath.getParentDirectory())));
+          PackageIdentifier.createInMainRepo(execPath.getParentDirectory())));
       if (value.hasContainingPackage()) {
         roots.put(execPath, Root.asSourceRoot(value.getContainingPackageRoot()));
       } else {
@@ -1585,6 +1585,8 @@ public abstract class SkyframeExecutor implements WalkableGraphFactory {
      * Returns whether the given package should be consider deleted and thus should be ignored.
      */
     public boolean isPackageDeleted(PackageIdentifier packageName) {
+      Preconditions.checkState(!packageName.getRepository().isDefault(),
+          "package must be absolute: %s", packageName);
       return deletedPackages.get().contains(packageName);
     }
 
@@ -1619,7 +1621,7 @@ public abstract class SkyframeExecutor implements WalkableGraphFactory {
             workingDirectory),
         packageCacheOptions.defaultVisibility, packageCacheOptions.showLoadingProgress,
         packageCacheOptions.globbingThreads, defaultsPackageContents, commandId);
-    setDeletedPackages(ImmutableSet.copyOf(packageCacheOptions.deletedPackages));
+    setDeletedPackages(packageCacheOptions.getDeletedPackages());
 
     incrementalBuildMonitor = new SkyframeIncrementalBuildMonitor();
     invalidateTransientErrors();

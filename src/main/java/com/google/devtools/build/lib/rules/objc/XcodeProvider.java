@@ -513,8 +513,8 @@ public final class XcodeProvider implements TransitiveInfoProvider {
 
   private static String xcodeTargetName(Label label, String labelSuffix) {
     String pathFromWorkspaceRoot = label + labelSuffix;
-    if (label.getPackageIdentifier().getRepository().isDefault()) {
-      pathFromWorkspaceRoot = pathFromWorkspaceRoot.replace("//", "")
+    if (label.getPackageIdentifier().getRepository().isMain()) {
+      pathFromWorkspaceRoot = pathFromWorkspaceRoot.replace("@//", "")
           .replace(':', '/');
     } else {
       pathFromWorkspaceRoot = pathFromWorkspaceRoot.replace("//", "_")

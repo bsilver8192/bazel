@@ -59,7 +59,7 @@ function test_query_buildfiles_with_load() {
     rm -f y/rules.bzl
     bazel query --noshow_progress 'buildfiles(//x)' 2>$TEST_log &&
         fail "Expected error"
-    expect_log "Extension file not found. Unable to load file '//y:rules.bzl'"
+    expect_log "Extension file not found. Unable to load file '@//y:rules.bzl'"
 }
 
 # Regression test for:
@@ -143,16 +143,16 @@ EOF
 genrule(name='foo.h', outs=['bar.h'], srcs=['foo.h'], cmd=':')
 EOF
   bazel build --nobuild //cycle:foo.h >$TEST_log 2>&1 || true
-  expect_log "in genrule rule //cycle:foo.h: .*dependency graph"
-  expect_log "//cycle:foo.h.*self-edge"
+  expect_log "in genrule rule @//cycle:foo.h: .*dependency graph"
+  expect_log "@//cycle:foo.h.*self-edge"
 
   bazel build --nobuild //main:mygenrule >$TEST_log 2>&1 || true
-  expect_log "in genrule rule //cycle:foo.h: .*dependency graph"
-  expect_log "//cycle:foo.h.*self-edge"
+  expect_log "in genrule rule @//cycle:foo.h: .*dependency graph"
+  expect_log "@//cycle:foo.h.*self-edge"
 
   bazel build --nobuild //cycle:foo.h >$TEST_log 2>&1 || true
-  expect_log "in genrule rule //cycle:foo.h: .*dependency graph"
-  expect_log "//cycle:foo.h.*self-edge"
+  expect_log "in genrule rule @//cycle:foo.h: .*dependency graph"
+  expect_log "@//cycle:foo.h.*self-edge"
 }
 
 # Integration test for option parser warnings.
@@ -243,7 +243,7 @@ function test_build_file_symlinks() {
   ln -s b a || fail "couldn't link a to b"
 
   bazel query a:all >& $TEST_log && fail "Expected failure"
-  expect_log "no such package 'a'"
+  expect_log "no such package '@//a'"
 
   touch b/BUILD
   bazel query a:all >& $TEST_log || fail "Expected success"
@@ -252,12 +252,12 @@ function test_build_file_symlinks() {
   unlink a || fail "couldn't unlink a"
   ln -s c a
   bazel query a:all >& $TEST_log && fail "Expected failure"
-  expect_log "no such package 'a'"
+  expect_log "no such package '@//a'"
 
   mkdir c || fail "couldn't make c"
   ln -s foo c/BUILD || "couldn't link c/BUILD to c/foo"
   bazel query a:all >& $TEST_log && fail "Expected failure"
-  expect_log "no such package 'a'"
+  expect_log "no such package '@//a'"
 
   touch c/foo
   bazel query a:all >& $TEST_log || fail "Expected success"

@@ -47,7 +47,7 @@ public class OutputFileTest extends PackageLoadingTestCase {
             "        outs=['x', 'subdir/y'])");
     this.pkg =
         packageFactory.createPackageForTesting(
-            PackageIdentifier.createInDefaultRepo("pkg"), buildfile, getPackageManager(), reporter);
+            PackageIdentifier.createInMainRepo("pkg"), buildfile, getPackageManager(), reporter);
     assertNoEvents();
 
     this.rule = (Rule) pkg.getTarget("foo");
@@ -75,7 +75,7 @@ public class OutputFileTest extends PackageLoadingTestCase {
     OutputFile outputFileX = (OutputFile) pkg.getTarget("x");
     checkTargetRetainsGeneratingRule(outputFileX);
     checkName(outputFileX, "x");
-    checkLabel(outputFileX, "//pkg:x");
+    checkLabel(outputFileX, "@//pkg:x");
     assertEquals("generated file", outputFileX.getTargetKind());
   }
 
@@ -84,7 +84,7 @@ public class OutputFileTest extends PackageLoadingTestCase {
     OutputFile outputFileY = (OutputFile) pkg.getTarget("subdir/y");
     checkTargetRetainsGeneratingRule(outputFileY);
     checkName(outputFileY, "subdir/y");
-    checkLabel(outputFileY, "//pkg:subdir/y");
+    checkLabel(outputFileY, "@//pkg:subdir/y");
   }
 
   @Test
@@ -120,7 +120,7 @@ public class OutputFileTest extends PackageLoadingTestCase {
 
     reporter.removeHandler(failFastHandler);
     packageFactory.createPackageForTesting(
-        PackageIdentifier.createInDefaultRepo("two_outs"),
+        PackageIdentifier.createInMainRepo("two_outs"),
         buildfile,
         getPackageManager(),
         reporter);
@@ -144,7 +144,7 @@ public class OutputFileTest extends PackageLoadingTestCase {
 
     reporter.removeHandler(failFastHandler);
     packageFactory.createPackageForTesting(
-        PackageIdentifier.createInDefaultRepo("out_is_rule"),
+        PackageIdentifier.createInMainRepo("out_is_rule"),
         buildfile,
         getPackageManager(),
         reporter);
@@ -162,7 +162,7 @@ public class OutputFileTest extends PackageLoadingTestCase {
 
     reporter.removeHandler(failFastHandler);
     packageFactory.createPackageForTesting(
-        PackageIdentifier.createInDefaultRepo("two_outs"),
+        PackageIdentifier.createInMainRepo("two_outs"),
         buildfile,
         getPackageManager(),
         reporter);
@@ -182,11 +182,11 @@ public class OutputFileTest extends PackageLoadingTestCase {
 
     reporter.removeHandler(failFastHandler);
     packageFactory.createPackageForTesting(
-        PackageIdentifier.createInDefaultRepo("bad_out_name"),
+        PackageIdentifier.createInMainRepo("bad_out_name"),
         buildfile,
         getPackageManager(),
         reporter);
-    assertContainsEvent("illegal output file name '!@#' in rule //bad_out_name:a");
+    assertContainsEvent("illegal output file name '!@#' in rule @//bad_out_name:a");
   }
 
   @Test
@@ -200,7 +200,7 @@ public class OutputFileTest extends PackageLoadingTestCase {
 
     reporter.removeHandler(failFastHandler);
     packageFactory.createPackageForTesting(
-        PackageIdentifier.createInDefaultRepo("cross_package_out"),
+        PackageIdentifier.createInMainRepo("cross_package_out"),
         buildfile,
         getPackageManager(),
         reporter);
@@ -218,7 +218,7 @@ public class OutputFileTest extends PackageLoadingTestCase {
 
     reporter.removeHandler(failFastHandler);
     packageFactory.createPackageForTesting(
-        PackageIdentifier.createInDefaultRepo("output_called_build"), buildfile,
+        PackageIdentifier.createInMainRepo("output_called_build"), buildfile,
         getPackageManager(), reporter);
     assertContainsEvent("generated file 'BUILD' in rule 'a' conflicts with existing source file");
   }
