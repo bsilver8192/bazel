@@ -101,7 +101,7 @@ public class TargetMarkerFunctionTest extends BuildViewTestCase {
     // In the presence of b/12545745, the error message is different and comes from the
     // PackageFunction.
     assertThat(exn.getMessage())
-        .contains("Label '//a:b/c/foo.sh' crosses boundary of subpackage 'a/b'");
+        .contains("Label '@//a:b/c/foo.sh' crosses boundary of subpackage '@//a/b'");
   }
 
   @Test
@@ -109,9 +109,9 @@ public class TargetMarkerFunctionTest extends BuildViewTestCase {
     String labelName = "//no/such/package:target/withslash";
     BuildFileNotFoundException exn =
         (BuildFileNotFoundException) getErrorFromTargetValue(labelName);
-    assertEquals(PackageIdentifier.createInDefaultRepo("no/such/package"), exn.getPackageId());
+    assertEquals(PackageIdentifier.createInMainRepo("no/such/package"), exn.getPackageId());
     String expectedMessage =
-        "no such package 'no/such/package': BUILD file not found on "
+        "no such package '@//no/such/package': BUILD file not found on "
             + "package path for 'no/such/package'";
     assertThat(exn).hasMessage(expectedMessage);
   }
@@ -123,10 +123,10 @@ public class TargetMarkerFunctionTest extends BuildViewTestCase {
         "a/BUILD",
         "genrule(name = 'conflict1', cmd = '', srcs = [], outs = ['conflict'])",
         "genrule(name = 'conflict2', cmd = '', srcs = [], outs = ['conflict'])");
-    String labelName = "//a:conflict1";
+    String labelName = "@//a:conflict1";
     NoSuchTargetException exn = (NoSuchTargetException) getErrorFromTargetValue(labelName);
     assertThat(exn.getMessage())
-        .contains("Target '//a:conflict1' contains an error and its package is in error");
+        .contains("Target '@//a:conflict1' contains an error and its package is in error");
     assertEquals(labelName, exn.getLabel().toString());
     assertTrue(exn.hasTarget());
   }

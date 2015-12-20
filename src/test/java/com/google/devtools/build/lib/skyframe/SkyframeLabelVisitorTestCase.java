@@ -96,12 +96,12 @@ abstract public class SkyframeLabelVisitorTestCase extends PackageLoadingTestCas
     EventCollector warningCollector = new EventCollector(EventKind.WARNING);
     reporter.addHandler(warningCollector);
     assertLabelsVisitedWithErrors(ImmutableSet.of("//pkg:x"), ImmutableSet.of("//pkg:x"));
-    assertContainsEvent("Label '//pkg2:q/sub' crosses boundary of subpackage 'pkg2/q'");
-    assertContainsEvent("no such target '//pkg2:q/sub'");
+    assertContainsEvent("Label '@//pkg2:q/sub' crosses boundary of subpackage '@//pkg2/q'");
+    assertContainsEvent("no such target '@//pkg2:q/sub'");
     Collection<Event> warnings = Lists.newArrayList(warningCollector);
     // Check stability (not redundant).
     assertLabelsVisitedWithErrors(ImmutableSet.of("//pkg:x"), ImmutableSet.of("//pkg:x"));
-    assertContainsEvent("Label '//pkg2:q/sub' crosses boundary of subpackage 'pkg2/q'");
+    assertContainsEvent("Label '@//pkg2:q/sub' crosses boundary of subpackage '@//pkg2/q'");
 
     return warnings;
   }

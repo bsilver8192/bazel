@@ -159,7 +159,7 @@ public class AnalysisCachingTest extends AnalysisCachingTestBase {
     update("//conflict:x");
     ConfiguredTarget conflict = getConfiguredTarget("//conflict:x");
     Action oldAction = getGeneratingAction(getBinArtifact("_objs/x/conflict/foo.pic.o", conflict));
-    assertEquals("//conflict:x", oldAction.getOwner().getLabel().toString());
+    assertEquals("@//conflict:x", oldAction.getOwner().getLabel().toString());
     scratch.overwriteFile("conflict/BUILD",
         "cc_library(name='newx', srcs=['foo.cc'])", // Rename target.
         "cc_binary(name='_objs/x/conflict/foo.pic.o', srcs=['bar.cc'])");
@@ -167,7 +167,7 @@ public class AnalysisCachingTest extends AnalysisCachingTestBase {
     ConfiguredTarget objsConflict = getConfiguredTarget("//conflict:_objs/x/conflict/foo.pic.o");
     Action newAction =
         getGeneratingAction(getBinArtifact("_objs/x/conflict/foo.pic.o", objsConflict));
-    assertEquals("//conflict:_objs/x/conflict/foo.pic.o",
+    assertEquals("@//conflict:_objs/x/conflict/foo.pic.o",
         newAction.getOwner().getLabel().toString());
   }
 
@@ -278,8 +278,8 @@ public class AnalysisCachingTest extends AnalysisCachingTestBase {
     update("//java/a:x");
     Set<?> oldAnalyzedTargets = getSkyframeEvaluatedTargetKeys();
     assertTrue(oldAnalyzedTargets.size() >= 2);  // could be greater due to implicit deps
-    assertEquals(1, countObjectsPartiallyMatchingRegex(oldAnalyzedTargets, "//java/a:x"));
-    assertEquals(1, countObjectsPartiallyMatchingRegex(oldAnalyzedTargets, "//java/a:y"));
+    assertEquals(1, countObjectsPartiallyMatchingRegex(oldAnalyzedTargets, "@//java/a:x"));
+    assertEquals(1, countObjectsPartiallyMatchingRegex(oldAnalyzedTargets, "@//java/a:y"));
     update("//java/a:y");
     assertNoTargetsVisited();
   }
@@ -295,13 +295,13 @@ public class AnalysisCachingTest extends AnalysisCachingTestBase {
     update("//java/a:y");
     Set<?> oldAnalyzedTargets = getSkyframeEvaluatedTargetKeys();
     assertTrue(oldAnalyzedTargets.size() >= 3);  // could be greater due to implicit deps
-    assertEquals(0, countObjectsPartiallyMatchingRegex(oldAnalyzedTargets, "//java/a:x"));
-    assertEquals(1, countObjectsPartiallyMatchingRegex(oldAnalyzedTargets, "//java/a:y"));
+    assertEquals(0, countObjectsPartiallyMatchingRegex(oldAnalyzedTargets, "@//java/a:x"));
+    assertEquals(1, countObjectsPartiallyMatchingRegex(oldAnalyzedTargets, "@//java/a:y"));
     update("//java/a:x");
     Set<?> newAnalyzedTargets = getSkyframeEvaluatedTargetKeys();
     assertTrue(newAnalyzedTargets.size() >= 1);  // could be greater due to implicit deps
-    assertEquals(1, countObjectsPartiallyMatchingRegex(newAnalyzedTargets, "//java/a:x"));
-    assertEquals(0, countObjectsPartiallyMatchingRegex(newAnalyzedTargets, "//java/a:y"));
+    assertEquals(1, countObjectsPartiallyMatchingRegex(newAnalyzedTargets, "@//java/a:x"));
+    assertEquals(0, countObjectsPartiallyMatchingRegex(newAnalyzedTargets, "@//java/a:y"));
   }
 
   @Test
@@ -348,7 +348,7 @@ public class AnalysisCachingTest extends AnalysisCachingTestBase {
       update("//java/a:a");
       fail();
     } catch (ViewCreationFailedException e) {
-      assertThat(e.getMessage()).contains("Analysis of target '//java/a:a' failed");
+      assertThat(e.getMessage()).contains("Analysis of target '@//java/a:a' failed");
       assertContainsEvent("Unable to expand make variables: $(BUG)");
     }
   }
@@ -450,10 +450,10 @@ public class AnalysisCachingTest extends AnalysisCachingTestBase {
     update("//java/a:x");
     Set<?> oldAnalyzedTargets = getSkyframeEvaluatedTargetKeys();
     assertTrue(oldAnalyzedTargets.size() >= 2);  // could be greater due to implicit deps
-    assertEquals(1, countObjectsPartiallyMatchingRegex(oldAnalyzedTargets, "//java/a:x"));
-    assertEquals(0, countObjectsPartiallyMatchingRegex(oldAnalyzedTargets, "//java/a:y"));
-    assertEquals(1, countObjectsPartiallyMatchingRegex(oldAnalyzedTargets, "//java/a:z"));
-    assertEquals(1, countObjectsPartiallyMatchingRegex(oldAnalyzedTargets, "//java/a:w"));
+    assertEquals(1, countObjectsPartiallyMatchingRegex(oldAnalyzedTargets, "@//java/a:x"));
+    assertEquals(0, countObjectsPartiallyMatchingRegex(oldAnalyzedTargets, "@//java/a:y"));
+    assertEquals(1, countObjectsPartiallyMatchingRegex(oldAnalyzedTargets, "@//java/a:z"));
+    assertEquals(1, countObjectsPartiallyMatchingRegex(oldAnalyzedTargets, "@//java/a:w"));
 
     // Unless the build is not fully cached, we get notified about newly evaluated targets, as well
     // as cached top-level targets. For the two tests above to work correctly, we need to ensure
@@ -461,8 +461,8 @@ public class AnalysisCachingTest extends AnalysisCachingTestBase {
     update("//java/a:x", "//java/a:y", "//java/a:z");
     Set<?> newAnalyzedTargets = getSkyframeEvaluatedTargetKeys();
     assertThat(newAnalyzedTargets).hasSize(2);
-    assertEquals(1, countObjectsPartiallyMatchingRegex(newAnalyzedTargets, "//java/a:B.java"));
-    assertEquals(1, countObjectsPartiallyMatchingRegex(newAnalyzedTargets, "//java/a:y"));
+    assertEquals(1, countObjectsPartiallyMatchingRegex(newAnalyzedTargets, "@//java/a:B.java"));
+    assertEquals(1, countObjectsPartiallyMatchingRegex(newAnalyzedTargets, "@//java/a:y"));
   }
 
   /**

@@ -310,9 +310,9 @@ public class CcLibraryConfiguredTargetTest extends BuildViewTestCase {
         "    deps = ['//module']",
         ")");
     CppCompileAction moduleAction = getCppCompileAction("//module:module");
-    assertThat(moduleAction.getCompilerOptions()).contains("module_name://module:module");
+    assertThat(moduleAction.getCompilerOptions()).contains("module_name:@//module:module");
     CppCompileAction noModuleAction = getCppCompileAction("//nomodule:nomodule");
-    assertThat(noModuleAction.getCompilerOptions()).doesNotContain("module_name://module:module");
+    assertThat(noModuleAction.getCompilerOptions()).doesNotContain("module_name:@//module:module");
   }
 
   /**

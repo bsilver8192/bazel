@@ -116,19 +116,19 @@ public class CompileOneDependencyTransformerTest extends PackageLoadingTestCase 
   public void testCompileOneDep() throws Exception {
     writeSimpleExample();
     assertThat(parseListCompileOneDep("foo/foo1.cc"))
-        .containsExactlyElementsIn(labels("//foo:foo1"));
+        .containsExactlyElementsIn(labels("@//foo:foo1"));
     assertThat(parseListCompileOneDep("foo/foo1.h"))
-        .containsExactlyElementsIn(labels("//foo:foo1"));
+        .containsExactlyElementsIn(labels("@//foo:foo1"));
     assertThat(parseListCompileOneDep("foo:foo1.cc"))
-        .containsExactlyElementsIn(labels("//foo:foo1"));
+        .containsExactlyElementsIn(labels("@//foo:foo1"));
     assertThat(parseListCompileOneDep("//foo:foo1.cc"))
-        .containsExactlyElementsIn(labels("//foo:foo1"));
+        .containsExactlyElementsIn(labels("@//foo:foo1"));
     assertThat(parseListCompileOneDepRelative("//foo:foo1.cc"))
-        .containsExactlyElementsIn(labels("//foo:foo1"));
+        .containsExactlyElementsIn(labels("@//foo:foo1"));
     assertThat(parseListCompileOneDepRelative(":foo1.cc"))
-        .containsExactlyElementsIn(labels("//foo:foo1"));
+        .containsExactlyElementsIn(labels("@//foo:foo1"));
     assertThat(parseListCompileOneDepRelative("foo1.cc"))
-        .containsExactlyElementsIn(labels("//foo:foo1"));
+        .containsExactlyElementsIn(labels("@//foo:foo1"));
   }
 
   /**
@@ -143,7 +143,7 @@ public class CompileOneDependencyTransformerTest extends PackageLoadingTestCase 
       fail();
     } catch (TargetParsingException e) {
       assertThat(e).hasMessage(
-          "no such target '//foo:missing.cc': target 'missing.cc' not declared in package 'foo' "
+          "no such target '@//foo:missing.cc': target 'missing.cc' not declared in package 'foo' "
           + "defined by /workspace/foo/BUILD");
     }
 
@@ -152,7 +152,7 @@ public class CompileOneDependencyTransformerTest extends PackageLoadingTestCase 
       parseCompileOneDep("//foo:baz/bang");
       fail();
     } catch (TargetParsingException e) {
-      assertThat(e).hasMessage("Couldn't find dependency on target '//foo:baz/bang'");
+      assertThat(e).hasMessage("Couldn't find dependency on target '@//foo:baz/bang'");
     }
 
     // Try a header that is in a package but where no cc_library explicitly lists it.
@@ -160,7 +160,7 @@ public class CompileOneDependencyTransformerTest extends PackageLoadingTestCase 
       parseCompileOneDep("//foo/bar:undeclared.h");
       fail();
     } catch (TargetParsingException e) {
-      assertThat(e).hasMessage("Couldn't find dependency on target '//foo/bar:undeclared.h'");
+      assertThat(e).hasMessage("Couldn't find dependency on target '@//foo/bar:undeclared.h'");
     }
 
   }
@@ -172,7 +172,7 @@ public class CompileOneDependencyTransformerTest extends PackageLoadingTestCase 
       parseCompileOneDep("//foo:foo1");
       fail();
     } catch (TargetParsingException e) {
-      assertThat(e).hasMessage("--compile_one_dependency target '//foo:foo1' must be a file");
+      assertThat(e).hasMessage("--compile_one_dependency target '@//foo:foo1' must be a file");
     }
   }
 
@@ -215,7 +215,7 @@ public class CompileOneDependencyTransformerTest extends PackageLoadingTestCase 
       parseCompileOneDep("//recursive:foo");
       fail();
     } catch (TargetParsingException e) {
-      assertThat(e).hasMessage("Couldn't find dependency on target '//recursive:foo'");
+      assertThat(e).hasMessage("Couldn't find dependency on target '@//recursive:foo'");
     }
   }
 

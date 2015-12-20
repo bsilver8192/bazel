@@ -54,8 +54,11 @@ public class PackageLookupFunction implements SkyFunction {
       return PackageLookupValue.success(pkgLocator.getPathEntries().get(0));
     }
 
-    if (!packageKey.getRepository().equals(PackageIdentifier.MAIN_REPOSITORY_NAME)
-        && !packageKey.getRepository().isDefault()) {
+    if (deletedPackages.get().contains(packageKey)) {
+      return PackageLookupValue.DELETED_PACKAGE_VALUE;
+    }
+
+    if (!packageKey.getRepository().isMain() && !packageKey.getRepository().isDefault()) {
       return computeExternalPackageLookupValue(skyKey, env, packageKey);
     } else if (packageKey.equals(Label.EXTERNAL_PACKAGE_IDENTIFIER)) {
       return computeWorkspaceLookupValue(env, packageKey);
@@ -66,10 +69,6 @@ public class PackageLookupFunction implements SkyFunction {
     if (packageNameErrorMsg != null) {
       return PackageLookupValue.invalidPackageName("Invalid package name '" + packageKey + "': "
           + packageNameErrorMsg);
-    }
-
-    if (deletedPackages.get().contains(packageKey)) {
-      return PackageLookupValue.DELETED_PACKAGE_VALUE;
     }
 
     BlacklistedPackagePrefixesValue blacklistedPatternsValue =

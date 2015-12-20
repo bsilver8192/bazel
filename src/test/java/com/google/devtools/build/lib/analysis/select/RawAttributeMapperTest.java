@@ -118,9 +118,9 @@ public class RawAttributeMapperTest extends AbstractAttributeMapperTest {
     assertThat(rawMapper.getConfigurabilityKeys("srcs", BuildType.LABEL_LIST))
         .containsExactlyElementsIn(
             ImmutableSet.of(
-                Label.parseAbsolute("//conditions:a"),
-                Label.parseAbsolute("//conditions:b"),
-                Label.parseAbsolute("//conditions:default")));
+                Label.parseAbsolute("//conditions:a", false),
+                Label.parseAbsolute("//conditions:b", false),
+                Label.parseAbsolute("//conditions:default", false)));
     assertThat(rawMapper.getConfigurabilityKeys("data", BuildType.LABEL_LIST)).isEmpty();
   }
 
@@ -135,9 +135,9 @@ public class RawAttributeMapperTest extends AbstractAttributeMapperTest {
         "    }))");
     RawAttributeMapper rawMapper = RawAttributeMapper.of(rule);
     assertThat(rawMapper.getMergedValues("srcs", BuildType.LABEL_LIST)).containsExactly(
-        Label.parseAbsolute("//x:a.sh"),
-        Label.parseAbsolute("//x:b.sh"),
-        Label.parseAbsolute("//x:c.sh"))
+        Label.parseAbsolute("//x:a.sh", false),
+        Label.parseAbsolute("//x:b.sh", false),
+        Label.parseAbsolute("//x:c.sh", false))
         .inOrder();
   }
 
@@ -155,11 +155,11 @@ public class RawAttributeMapperTest extends AbstractAttributeMapperTest {
         "    )");
     RawAttributeMapper rawMapper = RawAttributeMapper.of(rule);
     assertThat(rawMapper.getMergedValues("srcs", BuildType.LABEL_LIST)).containsExactly(
-        Label.parseAbsolute("//x:a1.sh"),
-        Label.parseAbsolute("//x:b1.sh"),
-        Label.parseAbsolute("//x:another_b1.sh"),
-        Label.parseAbsolute("//x:a2.sh"),
-        Label.parseAbsolute("//x:b2.sh"))
+        Label.parseAbsolute("//x:a1.sh", false),
+        Label.parseAbsolute("//x:b1.sh", false),
+        Label.parseAbsolute("//x:another_b1.sh", false),
+        Label.parseAbsolute("//x:a2.sh", false),
+        Label.parseAbsolute("//x:b2.sh", false))
         .inOrder();
   }
 }

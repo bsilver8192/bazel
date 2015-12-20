@@ -17,6 +17,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Verify;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.devtools.build.lib.cmdline.Label;
 import com.google.devtools.build.lib.cmdline.PackageIdentifier;
 import com.google.devtools.build.lib.events.Event;
 import com.google.devtools.build.lib.events.EventHandler;
@@ -98,7 +99,9 @@ public class PathPackageLocator implements Serializable {
    */
   public Path getPackageBuildFileNullable(PackageIdentifier packageIdentifier,
       AtomicReference<? extends UnixGlob.FilesystemCalls> cache)  {
-    if (packageIdentifier.getRepository().isDefault()) {
+    if (packageIdentifier.getRepository().isMain()
+        || (packageIdentifier.getRepository().isDefault() &&
+          Label.ABSOLUTE_PACKAGE_NAMES.contains(packageIdentifier.getPackageFragment()))) {
       return getFilePath(packageIdentifier.getPackageFragment().getRelative("BUILD"), cache);
     } else if (!packageIdentifier.getRepository().isDefault()) {
       Verify.verify(outputBase != null, String.format(

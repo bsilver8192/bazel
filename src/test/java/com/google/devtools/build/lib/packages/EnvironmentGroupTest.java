@@ -66,31 +66,31 @@ public class EnvironmentGroupTest extends PackageLoadingTestCase {
   public void testGroupMembership() throws Exception {
     assertEquals(
         ImmutableSet.of(
-            Label.parseAbsolute("//pkg:foo"),
-            Label.parseAbsolute("//pkg:bar"),
-            Label.parseAbsolute("//pkg:baz")),
+            Label.parseAbsolute("//pkg:foo", false),
+            Label.parseAbsolute("//pkg:bar", false),
+            Label.parseAbsolute("//pkg:baz", false)),
         group.getEnvironments());
   }
 
   @Test
   public void testDefaultsMembership() throws Exception {
-    assertEquals(ImmutableSet.of(Label.parseAbsolute("//pkg:foo")), group.getDefaults());
+    assertEquals(ImmutableSet.of(Label.parseAbsolute("//pkg:foo", false)), group.getDefaults());
   }
 
   @Test
   public void testIsDefault() throws Exception {
-    assertTrue(group.isDefault(Label.parseAbsolute("//pkg:foo")));
-    assertFalse(group.isDefault(Label.parseAbsolute("//pkg:bar")));
-    assertFalse(group.isDefault(Label.parseAbsolute("//pkg:baz")));
-    assertFalse(group.isDefault(Label.parseAbsolute("//pkg:not_in_group")));
+    assertTrue(group.isDefault(Label.parseAbsolute("//pkg:foo", false)));
+    assertFalse(group.isDefault(Label.parseAbsolute("//pkg:bar", false)));
+    assertFalse(group.isDefault(Label.parseAbsolute("//pkg:baz", false)));
+    assertFalse(group.isDefault(Label.parseAbsolute("//pkg:not_in_group", false)));
   }
 
   @Test
   public void testFulfillers() throws Exception {
-    assertThat(group.getFulfillers(Label.parseAbsolute("//pkg:baz")))
-        .containsExactly(Label.parseAbsolute("//pkg:foo"), Label.parseAbsolute("//pkg:bar"));
-    assertThat(group.getFulfillers(Label.parseAbsolute("//pkg:bar")))
-        .containsExactly(Label.parseAbsolute("//pkg:foo"));
-    assertThat(group.getFulfillers(Label.parseAbsolute("//pkg:foo"))).isEmpty();
+    assertThat(group.getFulfillers(Label.parseAbsolute("//pkg:baz", false)))
+        .containsExactly(Label.parseAbsolute("//pkg:foo", false), Label.parseAbsolute("//pkg:bar", false));
+    assertThat(group.getFulfillers(Label.parseAbsolute("//pkg:bar", false)))
+        .containsExactly(Label.parseAbsolute("//pkg:foo", false));
+    assertThat(group.getFulfillers(Label.parseAbsolute("//pkg:foo", false))).isEmpty();
   }
 }

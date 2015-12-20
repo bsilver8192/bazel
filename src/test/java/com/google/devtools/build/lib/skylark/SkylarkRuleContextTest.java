@@ -120,8 +120,8 @@ public class SkylarkRuleContextTest extends SkylarkTestCase {
       // Macro creates native rule -> location points to the rule and the message contains details
       // about the macro.
       assertContainsEvent(
-          "ERROR /workspace/test/BUILD:2:1: in deps attribute of cc_library rule //test:m_native: "
-              + "java_library rule '//test:jlib' is misplaced here (expected ");
+          "ERROR /workspace/test/BUILD:2:1: in deps attribute of cc_library rule @//test:m_native: "
+              + "java_library rule '@//test:jlib' is misplaced here (expected ");
       // Skip the part of the error message that has details about the allowed deps since the mocks
       // for the mac tests might have different values for them.
       assertContainsEvent(". Since this "
@@ -141,7 +141,7 @@ public class SkylarkRuleContextTest extends SkylarkTestCase {
       // about the macro.
       assertContainsEvent(
           "ERROR /workspace/test/BUILD:4:1: in deps attribute of skylark_rule rule "
-              + "//test:m_skylark: '//test:jlib' does not have mandatory provider 'some_provider'. "
+              + "@//test:m_skylark: '@//test:jlib' does not have mandatory provider 'some_provider'. "
               + "Since this rule was created by the macro 'macro_skylark_rule', the error might "
               + "have been caused by the macro implementation in /workspace/test/macros.bzl:12:36");
     }
@@ -157,7 +157,7 @@ public class SkylarkRuleContextTest extends SkylarkTestCase {
       // Native rule WITHOUT macro -> location points to the attribute and there is no mention of
       // 'macro' at all.
       assertContainsEvent("ERROR /workspace/test/BUILD:9:10: in deps attribute of "
-          + "cc_library rule //test:cclib: java_library rule '//test:jlib' is misplaced here "
+          + "cc_library rule @//test:cclib: java_library rule '@//test:jlib' is misplaced here "
           + "(expected ");
       // Skip the part of the error message that has details about the allowed deps since the mocks
       // for the mac tests might have different values for them.
@@ -175,7 +175,7 @@ public class SkylarkRuleContextTest extends SkylarkTestCase {
       // Skylark rule WITHOUT macro -> location points to the attribute and there is no mention of
       // 'macro' at all.
       assertContainsEvent("ERROR /workspace/test/BUILD:11:10: in deps attribute of "
-          + "skylark_rule rule //test:skyrule: '//test:jlib' does not have mandatory provider "
+          + "skylark_rule rule @//test:skyrule: '@//test:jlib' does not have mandatory provider "
           + "'some_provider'");
     }
   }
@@ -190,9 +190,9 @@ public class SkylarkRuleContextTest extends SkylarkTestCase {
     reporter.removeHandler(failFastHandler);
     getConfiguredTarget("//test:cclib");
     assertContainsEvent(
-        "ERROR /workspace/test/BUILD:2:10: Label '//test:sub/my_sub_lib.h' crosses boundary of "
-            + "subpackage 'test/sub' (perhaps you meant to put the colon here: "
-            + "'//test/sub:my_sub_lib.h'?)");
+        "ERROR /workspace/test/BUILD:2:10: Label '@//test:sub/my_sub_lib.h' crosses boundary of "
+            + "subpackage '@//test/sub' (perhaps you meant to put the colon here: "
+            + "'@//test/sub:my_sub_lib.h'?)");
   }
 
   @Test
@@ -215,9 +215,9 @@ public class SkylarkRuleContextTest extends SkylarkTestCase {
     reporter.removeHandler(failFastHandler);
     getConfiguredTarget("//test:skyrule");
     assertContainsEvent(
-        "ERROR /workspace/test/BUILD:3:10: Label '//test:sub/my_sub_lib.h' crosses boundary of "
-            + "subpackage 'test/sub' (perhaps you meant to put the colon here: "
-            + "'//test/sub:my_sub_lib.h'?)");
+        "ERROR /workspace/test/BUILD:3:10: Label '@//test:sub/my_sub_lib.h' crosses boundary of "
+            + "subpackage '@//test/sub' (perhaps you meant to put the colon here: "
+            + "'@//test/sub:my_sub_lib.h'?)");
   }
 
   @Test
@@ -241,9 +241,9 @@ public class SkylarkRuleContextTest extends SkylarkTestCase {
         "  skylark_rule(name = name, srcs = srcs)");
     reporter.removeHandler(failFastHandler);
     getConfiguredTarget("//test:m_skylark");
-    assertContainsEvent("ERROR /workspace/test/BUILD:2:1: Label '//test:sub/my_sub_lib.h' "
-        + "crosses boundary of subpackage 'test/sub' (perhaps you meant to put the colon here: "
-        + "'//test/sub:my_sub_lib.h'?)");
+    assertContainsEvent("ERROR /workspace/test/BUILD:2:1: Label '@//test:sub/my_sub_lib.h' "
+        + "crosses boundary of subpackage '@//test/sub' (perhaps you meant to put the colon here: "
+        + "'@//test/sub:my_sub_lib.h'?)");
   }
 
   /* The error message for this case used to be wrong. */
@@ -290,9 +290,9 @@ public class SkylarkRuleContextTest extends SkylarkTestCase {
         "  skylark_rule(name = name, srcs = srcs + ['sub/my_sub_lib.h'])");
     reporter.removeHandler(failFastHandler);
     getConfiguredTarget("//test:m_skylark");
-    assertContainsEvent("ERROR /workspace/test/BUILD:2:1: Label '//test:sub/my_sub_lib.h' "
-        + "crosses boundary of subpackage 'test/sub' (perhaps you meant to put the colon here: "
-        + "'//test/sub:my_sub_lib.h'?)");
+    assertContainsEvent("ERROR /workspace/test/BUILD:2:1: Label '@//test:sub/my_sub_lib.h' "
+        + "crosses boundary of subpackage '@//test/sub' (perhaps you meant to put the colon here: "
+        + "'@//test/sub:my_sub_lib.h'?)");
   }
 
   @Test
@@ -308,9 +308,9 @@ public class SkylarkRuleContextTest extends SkylarkTestCase {
         "  native.cc_library(name = name, deps = deps, srcs = srcs)");
     reporter.removeHandler(failFastHandler);
     getConfiguredTarget("//test:m_native");
-    assertContainsEvent("ERROR /workspace/test/BUILD:2:1: Label '//test:sub/my_sub_lib.h' "
-        + "crosses boundary of subpackage 'test/sub' (perhaps you meant to put the colon here: "
-        + "'//test/sub:my_sub_lib.h'?)");
+    assertContainsEvent("ERROR /workspace/test/BUILD:2:1: Label '@//test:sub/my_sub_lib.h' "
+        + "crosses boundary of subpackage '@//test/sub' (perhaps you meant to put the colon here: "
+        + "'@//test/sub:my_sub_lib.h'?)");
   }
 
   @Test
@@ -428,7 +428,7 @@ public class SkylarkRuleContextTest extends SkylarkTestCase {
     result = evalRuleContextCode(createRuleContext("//test/getrule:a_str"), "ruleContext.attr.s");
     assertEquals(
         new SkylarkList.MutableList(
-            ImmutableList.<String>of("genrule", "a", ":a.txt", "//test:bla")),
+            ImmutableList.<String>of("genrule", "a", ":a.txt", "@//test:bla")),
         result);
 
     result = evalRuleContextCode(createRuleContext("//test/getrule:c_str"), "ruleContext.attr.s");
@@ -501,7 +501,7 @@ public class SkylarkRuleContextTest extends SkylarkTestCase {
   public void testGetLabel() throws Exception {
     SkylarkRuleContext ruleContext = createRuleContext("//foo:foo");
     Object result = evalRuleContextCode(ruleContext, "ruleContext.label");
-    assertEquals("//foo:foo", ((Label) result).toString());
+    assertEquals("@//foo:foo", ((Label) result).toString());
   }
 
   @Test
@@ -552,7 +552,7 @@ public class SkylarkRuleContextTest extends SkylarkTestCase {
   public void testSkylarkRuleContextStr() throws Exception {
     SkylarkRuleContext ruleContext = createRuleContext("//foo:foo");
     Object result = evalRuleContextCode(ruleContext, "'%s' % ruleContext");
-    assertEquals("//foo:foo", result);
+    assertEquals("@//foo:foo", result);
   }
 
   @Test

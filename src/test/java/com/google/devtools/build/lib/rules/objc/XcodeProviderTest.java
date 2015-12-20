@@ -37,8 +37,8 @@ import org.junit.runners.JUnit4;
 public class XcodeProviderTest {
   @Test
   public void testXcodeTargetName() throws Exception {
-    assertThat(xcodeTargetName(Label.parseAbsolute("//foo:bar"))).isEqualTo("bar_foo");
-    assertThat(xcodeTargetName(Label.parseAbsolute("//foo/bar:baz"))).isEqualTo("baz_bar_foo");
+    assertThat(xcodeTargetName(Label.parseAbsolute("//foo:bar", false))).isEqualTo("bar_foo");
+    assertThat(xcodeTargetName(Label.parseAbsolute("//foo/bar:baz", false))).isEqualTo("baz_bar_foo");
   }
 
   @Test

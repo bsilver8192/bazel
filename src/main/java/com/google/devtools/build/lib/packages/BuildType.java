@@ -445,7 +445,7 @@ public final class BuildType {
     public static final String DEFAULT_CONDITION_KEY = "//conditions:default";
 
     private static final Label DEFAULT_CONDITION_LABEL =
-        Label.parseAbsoluteUnchecked(DEFAULT_CONDITION_KEY);
+        Label.parseAbsoluteUnchecked(DEFAULT_CONDITION_KEY, false);
 
     private final Type<T> originalType;
     private final ImmutableMap<Label, T> map;

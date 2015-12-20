@@ -112,7 +112,7 @@ public class IOExceptionsTest extends PackageLoadingTestCase {
     assertFalse(visitor.sync(reporter, ImmutableSet.<Target>of(),
         ImmutableSet.of(Label.parseAbsolute("//pkg:x")), /*keepGoing=*/false,
         /*parallelThreads=*/5, Integer.MAX_VALUE));
-    assertContainsEvent("no such package 'pkg'");
+    assertContainsEvent("no such package '@//pkg'");
     assertEquals(1, eventCollector.count());
     scratch.overwriteFile("pkg/BUILD",
         "# another comment to force reload",
@@ -147,7 +147,7 @@ public class IOExceptionsTest extends PackageLoadingTestCase {
     assertFalse(visitor.sync(reporter, ImmutableSet.<Target>of(),
         ImmutableSet.of(Label.parseAbsolute("//top:top")), /*keepGoing=*/false,
         /*parallelThreads=*/5, Integer.MAX_VALUE));
-    assertContainsEvent("no such package 'pkg'");
+    assertContainsEvent("no such package '@//pkg'");
     // The traditional label visitor does not propagate the original IOException message.
     // assertContainsEvent("custom crash");
     // This fails in Skyframe because the top node has already printed out the error but
@@ -184,7 +184,7 @@ public class IOExceptionsTest extends PackageLoadingTestCase {
     assertFalse(visitor.sync(reporter, ImmutableSet.<Target>of(),
         ImmutableSet.of(Label.parseAbsolute("//top/pkg:x")), /*keepGoing=*/false,
         /*parallelThreads=*/5, Integer.MAX_VALUE));
-    assertContainsEvent("no such package 'top/pkg'");
+    assertContainsEvent("no such package '@//top/pkg'");
     assertEquals(1, eventCollector.count());
   }
 }

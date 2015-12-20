@@ -54,9 +54,12 @@ public final class TargetMarkerFunction implements SkyFunction {
     Label label = (Label) key.argument();
     PathFragment pkgForLabel = label.getPackageFragment();
 
-    if (label.getName().contains("/")) {
+    if (label.getName().contains("/") &&
+        !label.getPackageIdentifier().getRepository().isDefault()) {
       // This target is in a subdirectory, therefore it could potentially be invalidated by
-      // a new BUILD file appearing in the hierarchy.
+      // a new BUILD file appearing in the hierarchy. However, if it's in the default
+      // repository, that means it's a special package like //external, which doesn't have
+      // sub-packages so we can't try looking them up.
       PathFragment containingDirectory = label.toPathFragment().getParentDirectory();
       ContainingPackageLookupValue containingPackageLookupValue;
       try {

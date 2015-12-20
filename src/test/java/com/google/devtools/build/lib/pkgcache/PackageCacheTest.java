@@ -109,7 +109,7 @@ public class PackageCacheTest extends FoundationTestCase {
         packageCacheOptions.defaultVisibility, true,
         7, ruleClassProvider.getDefaultsPackageContent(),
         UUID.randomUUID());
-    skyframeExecutor.setDeletedPackages(ImmutableSet.copyOf(packageCacheOptions.deletedPackages));
+    skyframeExecutor.setDeletedPackages(ImmutableSet.copyOf(packageCacheOptions.getDeletedPackages()));
   }
 
   private PackageCacheOptions parsePackageCacheOptions(String... options) throws Exception {
@@ -135,7 +135,7 @@ public class PackageCacheTest extends FoundationTestCase {
   private Package getPackage(String packageName)
       throws NoSuchPackageException, InterruptedException {
     return getPackageManager().getPackage(reporter,
-        PackageIdentifier.createInDefaultRepo(packageName));
+        PackageIdentifier.createInMainRepo(packageName));
   }
 
   private Target getTarget(Label label)
@@ -169,7 +169,7 @@ public class PackageCacheTest extends FoundationTestCase {
     assertEquals("/workspace/pkg1/BUILD",
                  pkg1.getFilename().toString());
     assertSame(pkg1, getPackageManager().getPackage(reporter,
-        PackageIdentifier.createInDefaultRepo("pkg1")));
+        PackageIdentifier.createInMainRepo("pkg1")));
   }
 
   @Test
@@ -182,7 +182,7 @@ public class PackageCacheTest extends FoundationTestCase {
   @Test
   public void testGetNonexistentPackage() throws Exception {
     checkGetPackageFails("not-there",
-                         "no such package 'not-there': "
+                         "no such package '@//not-there': "
                          + "BUILD file not found on package path");
   }
 
@@ -191,7 +191,7 @@ public class PackageCacheTest extends FoundationTestCase {
     scratch.file("invalidpackagename&42/BUILD", "cc_library(name = 'foo') # a BUILD file");
     checkGetPackageFails(
         "invalidpackagename&42",
-        "no such package 'invalidpackagename&42': Invalid package name 'invalidpackagename&42'");
+        "no such package '@//invalidpackagename&42': Invalid package name '@//invalidpackagename&42'");
   }
 
   @Test
@@ -209,7 +209,7 @@ public class PackageCacheTest extends FoundationTestCase {
       getTarget("//pkg1:not-there");
       fail();
     } catch (NoSuchTargetException e) {
-      assertThat(e).hasMessage("no such target '//pkg1:not-there': target 'not-there' "
+      assertThat(e).hasMessage("no such target '@//pkg1:not-there': target 'not-there' "
           + "not declared in package 'pkg1' defined by /workspace/pkg1/BUILD");
     }
   }
@@ -221,12 +221,12 @@ public class PackageCacheTest extends FoundationTestCase {
   @Test
   public void testRepeatedAttemptsToParseMissingPackage() throws Exception {
     checkGetPackageFails("missing",
-                         "no such package 'missing': "
+                         "no such package '@//missing': "
                          + "BUILD file not found on package path");
 
     // Still missing:
     checkGetPackageFails("missing",
-                         "no such package 'missing': "
+                         "no such package '@//missing': "
                          + "BUILD file not found on package path");
 
     // Update the BUILD file on disk so "missing" is no longer missing:
@@ -235,7 +235,7 @@ public class PackageCacheTest extends FoundationTestCase {
 
     // Still missing:
     checkGetPackageFails("missing",
-                         "no such package 'missing': "
+                         "no such package '@//missing': "
                          + "BUILD file not found on package path");
 
     invalidatePackages();
@@ -507,8 +507,8 @@ public class PackageCacheTest extends FoundationTestCase {
 
     // now:
     assertPackageLoadingFails("pkg",
-        "Label '//pkg:x/y.cc' crosses boundary of subpackage 'pkg/x' "
-        + "(perhaps you meant to put the colon here: '//pkg/x:y.cc'?)");
+        "Label '@//pkg:x/y.cc' crosses boundary of subpackage '@//pkg/x' "
+        + "(perhaps you meant to put the colon here: '@//pkg/x:y.cc'?)");
   }
 
   @Test
@@ -528,17 +528,17 @@ public class PackageCacheTest extends FoundationTestCase {
     // ...and this crosses package boundaries:
     assertLabelValidity(false, "//c:d/x");
     assertPackageLoadingFails("c",
-        "Label '//c:d/x' crosses boundary of subpackage 'c/d' (have you deleted c/d/BUILD? "
-        + "If so, use the --deleted_packages=c/d option)");
+        "Label '@//c:d/x' crosses boundary of subpackage '@//c/d' (have you deleted @//c/d/BUILD? "
+        + "If so, use the --deleted_packages=@//c/d option)");
 
     assertTrue(getPackageManager().isPackage(
-        reporter, PackageIdentifier.createInDefaultRepo("c/d")));
+        reporter, PackageIdentifier.createInMainRepo("c/d")));
 
     setOptions("--deleted_packages=c/d");
     invalidatePackages();
 
     assertFalse(getPackageManager().isPackage(
-        reporter, PackageIdentifier.createInDefaultRepo("c/d")));
+        reporter, PackageIdentifier.createInMainRepo("c/d")));
 
     // c/d is no longer a subpackage--even though there's a BUILD file in the
     // second root:
@@ -547,7 +547,7 @@ public class PackageCacheTest extends FoundationTestCase {
       fail();
     } catch (NoSuchPackageException e) {
       assertThat(e).hasMessage(
-          "no such package 'c/d': Package is considered deleted due to --deleted_packages");
+          "no such package '@//c/d': Package is considered deleted due to --deleted_packages");
     }
 
     // Labels in the subpackage are no longer valid...

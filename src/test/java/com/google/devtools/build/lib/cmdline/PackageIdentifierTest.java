@@ -16,7 +16,9 @@ package com.google.devtools.build.lib.cmdline;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import com.google.devtools.build.lib.vfs.PathFragment;
 
@@ -39,17 +41,21 @@ public class PackageIdentifierTest {
     PackageIdentifier fooA = PackageIdentifier.parse("@foo//a");
     assertThat(fooA.getRepository().strippedName()).isEqualTo("foo");
     assertThat(fooA.getPackageFragment().getPathString()).isEqualTo("a");
+    assertThat(fooA.getRepository().getPathFragment()).isEqualTo(
+        new PathFragment("external/foo"));
 
     PackageIdentifier absoluteA = PackageIdentifier.parse("//a");
     assertThat(absoluteA.getRepository().strippedName()).isEqualTo("");
-    assertThat(fooA.getPackageFragment().getPathString()).isEqualTo("a");
+    assertThat(absoluteA.getPackageFragment().getPathString()).isEqualTo("a");
 
     PackageIdentifier plainA = PackageIdentifier.parse("a");
     assertThat(plainA.getRepository().strippedName()).isEqualTo("");
-    assertThat(fooA.getPackageFragment().getPathString()).isEqualTo("a");
+    assertThat(plainA.getPackageFragment().getPathString()).isEqualTo("a");
 
     PackageIdentifier mainA = PackageIdentifier.parse("@//a");
     assertThat(mainA.getRepository()).isEqualTo(PackageIdentifier.MAIN_REPOSITORY_NAME);
+    assertThat(mainA.getPackageFragment().getPathString()).isEqualTo("a");
+    assertThat(mainA.getRepository().getPathFragment()).isEqualTo(PathFragment.EMPTY_FRAGMENT);
   }
 
   @Test
@@ -94,5 +100,15 @@ public class PackageIdentifierTest {
     PackageIdentifier p1 = PackageIdentifier.create("@whatever", new PathFragment("foo/bar"));
     PackageIdentifier p2 = PackageIdentifier.create("@whatever", new PathFragment("foo/bar"));
     assertSame(p2.getPackageFragment(), p1.getPackageFragment());
+  }
+
+  @Test
+  public void testIsAbsolute() throws Exception {
+    assertTrue(PackageIdentifier.create("", new PathFragment("external")).isAbsolute());
+    assertFalse(PackageIdentifier.create("", new PathFragment("external_not")).isAbsolute());
+    assertFalse(PackageIdentifier.create("", new PathFragment("external/foo")).isAbsolute());
+    assertTrue(PackageIdentifier.create("", new PathFragment("conditions")).isAbsolute());
+    assertTrue(PackageIdentifier.create("@", new PathFragment("foo")).isAbsolute());
+    assertTrue(PackageIdentifier.create("@my_repo", new PathFragment("foo")).isAbsolute());
   }
 }

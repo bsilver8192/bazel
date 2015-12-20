@@ -1585,6 +1585,8 @@ public abstract class SkyframeExecutor implements WalkableGraphFactory {
      * Returns whether the given package should be consider deleted and thus should be ignored.
      */
     public boolean isPackageDeleted(PackageIdentifier packageName) {
+      Preconditions.checkState(packageName.isAbsolute(),
+          "package must be absolute: %s", packageName);
       return deletedPackages.get().contains(packageName);
     }
 
@@ -1619,7 +1621,7 @@ public abstract class SkyframeExecutor implements WalkableGraphFactory {
             workingDirectory),
         packageCacheOptions.defaultVisibility, packageCacheOptions.showLoadingProgress,
         packageCacheOptions.globbingThreads, defaultsPackageContents, commandId);
-    setDeletedPackages(ImmutableSet.copyOf(packageCacheOptions.deletedPackages));
+    setDeletedPackages(packageCacheOptions.getDeletedPackages());
 
     incrementalBuildMonitor = new SkyframeIncrementalBuildMonitor();
     invalidateTransientErrors();

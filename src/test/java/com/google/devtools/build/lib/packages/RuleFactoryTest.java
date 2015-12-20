@@ -79,7 +79,7 @@ public class RuleFactoryTest extends PackageLoadingTestCase {
 
     assertSame(rule, pkg.getTarget("foo"));
 
-    assertEquals(Label.parseAbsolute("//mypkg:foo"), rule.getLabel());
+    assertEquals(Label.parseAbsolute("//mypkg:foo", false), rule.getLabel());
     assertEquals("foo", rule.getName());
 
     assertEquals("cc_library", rule.getRuleClass());

@@ -534,7 +534,7 @@ public class PackageFactoryTest extends PackageFactoryTestBase {
 
     assertThat(attributes(pkg.getRule("t1")).get("$implicit_tests", BuildType.LABEL_LIST))
         .containsExactlyElementsIn(
-            Sets.newHashSet(Label.parseAbsolute("//x:c"), Label.parseAbsolute("//x:j")));
+            Sets.newHashSet(Label.parseAbsolute("//x:c", false), Label.parseAbsolute("//x:j", false)));
     assertThat(attributes(pkg.getRule("t2")).get("$implicit_tests", BuildType.LABEL_LIST))
         .isEmpty();
     assertThat(attributes(pkg.getRule("t3")).get("$implicit_tests", BuildType.LABEL_LIST))
@@ -959,7 +959,7 @@ public class PackageFactoryTest extends PackageFactoryTestBase {
     assertFalse(pkg.containsErrors());
     assertNotNull(pkg.getRule("e"));
     GlobList globList = (GlobList) pkg.getRule("e").getAttributeContainer().getAttr("data");
-    assertThat(globList).containsExactly(Label.parseAbsolute("//e:data.txt"));
+    assertThat(globList).containsExactly(Label.parseAbsolute("//e:data.txt", false));
   }
 
   @Test
@@ -1140,8 +1140,8 @@ public class PackageFactoryTest extends PackageFactoryTestBase {
             "    default_compatible_with=['//foo'],",
             "    default_restricted_to=['//bar'],",
             ")");
-    assertThat(pkg.getDefaultCompatibleWith()).containsExactly(Label.parseAbsolute("//foo"));
-    assertThat(pkg.getDefaultRestrictedTo()).containsExactly(Label.parseAbsolute("//bar"));
+    assertThat(pkg.getDefaultCompatibleWith()).containsExactly(Label.parseAbsolute("//foo", false));
+    assertThat(pkg.getDefaultRestrictedTo()).containsExactly(Label.parseAbsolute("//bar", false));
   }
 
   @Test

@@ -58,7 +58,7 @@ public class SkyframeLabelVisitorTest extends SkyframeLabelVisitorTestCase {
 
     assertLabelsVisitedWithErrors(
         ImmutableSet.of("//pkg:x", "//pkg:z"), ImmutableSet.of("//pkg:x"));
-    assertContainsEvent("no such package 'nopkg'");
+    assertContainsEvent("no such package '@//nopkg'");
   }
 
   /**
@@ -106,7 +106,7 @@ public class SkyframeLabelVisitorTest extends SkyframeLabelVisitorTestCase {
     // not traverse into "//pkg:z" due to fail-fast.
     assertLabelsVisited(
         ImmutableSet.of("//pkg:x"), ImmutableSet.of("//pkg:x"), EXPECT_ERROR, !KEEP_GOING);
-    assertContainsEvent("Label '//pkg:z' is duplicated in the 'deps' attribute of rule 'x'");
+    assertContainsEvent("Label '@//pkg:z' is duplicated in the 'deps' attribute of rule 'x'");
     assertLabelsVisitedWithErrors(
         ImmutableSet.of("//pkg:x", "//pkg:z"), ImmutableSet.of("//pkg:x"));
 
@@ -248,8 +248,8 @@ public class SkyframeLabelVisitorTest extends SkyframeLabelVisitorTestCase {
 
     assertLabelsVisitedWithErrors(
         ImmutableSet.of("//pkg:x", "//pkg:z", "//pkg:o"), ImmutableSet.of("//pkg:x", "//pkg:o"));
-    assertContainsEvent("no such package 'nopkg'");
-    assertContainsEvent("no such package 'nopkg2'");
+    assertContainsEvent("no such package '@//nopkg'");
+    assertContainsEvent("no such package '@//nopkg2'");
   }
 
   // Indirectly tests that there are dependencies between packages and their subpackages.
@@ -270,7 +270,7 @@ public class SkyframeLabelVisitorTest extends SkyframeLabelVisitorTestCase {
 
     reporter.removeHandler(failFastHandler); // expect errors
     assertLabelsVisitedWithErrors(ImmutableSet.of("//x:x"), ImmutableSet.of("//x:x"));
-    assertContainsEvent("Label '//x:y/z' crosses boundary of subpackage 'x/y'");
+    assertContainsEvent("Label '@//x:y/z' crosses boundary of subpackage '@//x/y'");
   }
 
   // Indirectly tests that there are dependencies between packages and their subpackages.
@@ -281,7 +281,7 @@ public class SkyframeLabelVisitorTest extends SkyframeLabelVisitorTestCase {
         "x/BUILD", "sh_library(name = 'x', deps = ['//x:y/z'])", "sh_library(name = 'y/z')");
     scratch.file("x/y/BUILD", "sh_library(name = 'z')");
     assertLabelsVisitedWithErrors(ImmutableSet.of("//x:x"), ImmutableSet.of("//x:x"));
-    assertContainsEvent("Label '//x:y/z' crosses boundary of subpackage 'x/y'");
+    assertContainsEvent("Label '@//x:y/z' crosses boundary of subpackage '@//x/y'");
 
     scratch.deleteFile("x/y/BUILD");
     syncPackages(ModifiedFileSet.builder().modify(new PathFragment("x/y/BUILD")).build());
@@ -370,8 +370,8 @@ public class SkyframeLabelVisitorTest extends SkyframeLabelVisitorTestCase {
     assertLabelsVisitedWithErrors(
         ImmutableSet.of("//a:foo", "//a:pkgs"), ImmutableSet.of("//a:foo"));
     assertContainsEvent(
-        "in target '//a:pkgs', no such label '//not/a/package:pkgs': no "
-            + "such package 'not/a/package'");
+        "in target '@//a:pkgs', no such label '@//not/a/package:pkgs': no "
+            + "such package '@//not/a/package'");
   }
 
   @Test
@@ -398,7 +398,7 @@ public class SkyframeLabelVisitorTest extends SkyframeLabelVisitorTestCase {
     Collection<Event> warnings = assertNewBuildFileConflict();
     assertThat(warnings).hasSize(1);
     assertThat(warnings.iterator().next().toString())
-        .contains("errors encountered while analyzing target '//pkg:x': it will not be built");
+        .contains("errors encountered while analyzing target '@//pkg:x': it will not be built");
   }
 
   @Test
@@ -471,7 +471,7 @@ public class SkyframeLabelVisitorTest extends SkyframeLabelVisitorTestCase {
 
     reporter.removeHandler(failFastHandler); // expect errors
     assertLabelsVisitedWithErrors(ImmutableSet.of("//a:a"), ImmutableSet.of("//a:a"));
-    assertContainsEvent("Label '//b:c/d/foo' crosses boundary of subpackage 'b/c'");
+    assertContainsEvent("Label '@//b:c/d/foo' crosses boundary of subpackage '@//b/c'");
 
     subpackageBuildFile.delete();
     syncPackages(ModifiedFileSet.builder().modify(new PathFragment("b/c/BUILD")).build());

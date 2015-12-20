@@ -63,8 +63,8 @@ public class LabelTest {
 
   @Test
   public void testLabelResolution() throws Exception {
-    assertEquals("//absolute:label", parseCommandLine("//absolute:label", ""));
-    assertEquals("//absolute:label", parseCommandLine("//absolute:label", "absolute"));
+    assertEquals("@//absolute:label", parseCommandLine("//absolute:label", ""));
+    assertEquals("@//absolute:label", parseCommandLine("//absolute:label", "absolute"));
     assertEquals("//absolute:label", parseCommandLine(":label", "absolute"));
     assertEquals("//absolute:label", parseCommandLine("label", "absolute"));
     assertEquals("//absolute:label", parseCommandLine("absolute:label", ""));
@@ -241,13 +241,13 @@ public class LabelTest {
   @Test
   public void testToString() throws Exception {
     {
-      String s = "//foo/bar:baz";
+      String s = "@//foo/bar:baz";
       Label l = Label.parseAbsolute(s);
       assertEquals(s, l.toString());
     }
     {
       Label l = Label.parseAbsolute("//foo/bar");
-      assertEquals("//foo/bar:bar", l.toString());
+      assertEquals("@//foo/bar:bar", l.toString());
     }
   }
 
@@ -390,17 +390,17 @@ public class LabelTest {
 
   @Test
   public void testSerializationSimple() throws Exception {
-    checkSerialization("//a", 92);
+    checkSerialization("@//a", 93);
   }
 
   @Test
   public void testSerializationNested() throws Exception {
-    checkSerialization("//foo/bar:baz", 100);
+    checkSerialization("@//foo/bar:baz", 101);
   }
 
   @Test
   public void testSerializationWithoutTargetName() throws Exception {
-    checkSerialization("//foo/bar", 100);
+    checkSerialization("@//foo/bar", 101);
   }
 
   private void checkSerialization(String labelString, int expectedSize) throws Exception {
@@ -421,7 +421,7 @@ public class LabelTest {
   @Test
   public void testNoRepo() throws Exception {
     Label label = Label.parseAbsolute("//bar/baz:bat/boo");
-    assertEquals("//bar/baz:bat/boo", label.toString());
+    assertEquals("@//bar/baz:bat/boo", label.toString());
   }
 
   @Test

@@ -79,7 +79,7 @@ public class AspectTest extends AnalysisTestCase {
 
     ConfiguredTarget a = getConfiguredTarget("//a:a");
     assertThat(a.getProvider(RuleInfo.class).getData())
-        .containsExactly("aspect //a:b", "rule //a:a");
+        .containsExactly("aspect @//a:b", "rule @//a:a");
   }
 
   @Test
@@ -92,7 +92,7 @@ public class AspectTest extends AnalysisTestCase {
         "liar(name='b', foo=[])");
 
     ConfiguredTarget a = getConfiguredTarget("//a:a");
-    assertThat(a.getProvider(RuleInfo.class).getData()).containsExactly("rule //a:a");
+    assertThat(a.getProvider(RuleInfo.class).getData()).containsExactly("rule @//a:a");
   }
 
   @Test
@@ -106,7 +106,7 @@ public class AspectTest extends AnalysisTestCase {
 
     ConfiguredTarget a = getConfiguredTarget("//a:a");
     assertThat(a.getProvider(RuleInfo.class).getData())
-        .containsExactly("rule //a:a", "aspect //a:b");
+        .containsExactly("rule @//a:a", "aspect @//a:b");
   }
 
   @Test
@@ -126,9 +126,9 @@ public class AspectTest extends AnalysisTestCase {
     ConfiguredTarget a = getConfiguredTarget("//a:a");
     assertThat(a.getProvider(TestAspects.RuleInfo.class).getData())
         .containsExactly(
-            "rule //a:a",
-            "aspect //a:b data //a:q $dep:[ //a:q]",
-            "aspect //a:c data //a:q $dep:[ //a:q]");
+            "rule @//a:a",
+            "aspect @//a:b data //a:q $dep:[ @//a:q]",
+            "aspect @//a:c data //a:q $dep:[ @//a:q]");
   }
 
   @Test
@@ -186,7 +186,7 @@ public class AspectTest extends AnalysisTestCase {
 
     ConfiguredTarget a = getConfiguredTarget("//a:a");
     assertThat(a.getProvider(RuleInfo.class).getData())
-        .containsExactly("aspect //a:b", "rule //a:a");
+        .containsExactly("aspect @//a:b", "rule @//a:a");
   }
 
   @Test
@@ -200,7 +200,7 @@ public class AspectTest extends AnalysisTestCase {
 
     ConfiguredTarget a = getConfiguredTarget("//a:a");
     assertThat(a.getProvider(RuleInfo.class).getData())
-        .containsExactly("rule //a:a", "aspect //a:b data hello");
+        .containsExactly("rule @//a:a", "aspect @//a:b data hello");
   }
 
   /**
@@ -326,7 +326,7 @@ public class AspectTest extends AnalysisTestCase {
     NestedSet<ExtraActionArtifactsProvider.ExtraArtifactSet> extraActionArtifacts =
         a.getProvider(ExtraActionArtifactsProvider.class)
             .getTransitiveExtraActionArtifacts();
-    assertThat(getOnlyElement(extraActionArtifacts).getLabel()).isEqualTo(Label.create("a", "b"));
+    assertThat(getOnlyElement(extraActionArtifacts).getLabel()).isEqualTo(Label.create("@//a", "b"));
 
   }
 

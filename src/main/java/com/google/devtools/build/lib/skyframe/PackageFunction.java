@@ -569,6 +569,8 @@ public class PackageFunction implements SkyFunction {
       Environment env,
       SkylarkImportLookupFunction skylarkImportLookupFunctionForInlining)
       throws PackageFunctionException, InterruptedException {
+    Preconditions.checkArgument(packageId.isAbsolute());
+
     ImmutableList<SkylarkImport> imports = buildFileAST.getImports();
     Map<String, Extension> importMap = Maps.newHashMapWithExpectedSize(imports.size());
     ImmutableList.Builder<SkylarkFileDependency> fileDependencies = ImmutableList.builder();

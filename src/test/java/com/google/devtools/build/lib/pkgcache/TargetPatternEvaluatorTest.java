@@ -216,14 +216,14 @@ public class TargetPatternEvaluatorTest extends AbstractTargetPatternEvaluatorTe
 
   @Test
   public void testParsingStandardLabel() throws Exception {
-    assertEquals("//foo:foo1",
+    assertEquals("@//foo:foo1",
         parseIndividualTarget("//foo:foo1").toString());
   }
 
   @Test
   public void testAbsolutePatternEndsWithSlashAll() throws Exception {
     scratch.file("foo/all/BUILD", "cc_library(name = 'all')");
-    assertEquals("//foo/all:all", parseIndividualTarget("//foo/all").toString());
+    assertEquals("@//foo/all:all", parseIndividualTarget("//foo/all").toString());
     assertNoEvents();
   }
 
@@ -235,9 +235,9 @@ public class TargetPatternEvaluatorTest extends AbstractTargetPatternEvaluatorTe
         "cc_library(name = 'all-targets')",
         "cc_library(name = 'all')");
 
-    assertWildcardConflict("//foo/lib:all", ":all");
+    assertWildcardConflict("@//foo/lib:all", ":all");
     eventCollector.clear();
-    assertWildcardConflict("//foo/lib:all-targets", ":all-targets");
+    assertWildcardConflict("@//foo/lib:all-targets", ":all-targets");
   }
 
   private void assertWildcardConflict(String label, String suffix) throws Exception {
@@ -260,7 +260,7 @@ public class TargetPatternEvaluatorTest extends AbstractTargetPatternEvaluatorTe
 
   @Test
   public void testParsingStandardLabelWithRelativeParser() throws Exception {
-    assertEquals("//foo:foo1", parseIndividualTargetRelative("//foo:foo1").toString());
+    assertEquals("@//foo:foo1", parseIndividualTargetRelative("//foo:foo1").toString());
   }
 
   @Test
@@ -275,13 +275,13 @@ public class TargetPatternEvaluatorTest extends AbstractTargetPatternEvaluatorTe
 
   @Test
   public void testParsingStandardLabelShorthand() throws Exception {
-    assertEquals("//foo:foo1",
+    assertEquals("@//foo:foo1",
                  parseIndividualTarget("foo:foo1").toString());
   }
 
   @Test
   public void testParsingStandardLabelShorthandRelative() throws Exception {
-    assertEquals("//foo:foo1", parseIndividualTargetRelative(":foo1").toString());
+    assertEquals("@//foo:foo1", parseIndividualTargetRelative(":foo1").toString());
   }
 
 
@@ -298,7 +298,7 @@ public class TargetPatternEvaluatorTest extends AbstractTargetPatternEvaluatorTe
 
   @Test
   public void testUnsupportedTargets() throws Exception {
-    String expectedError = "no such target '//foo:foo': target 'foo' not declared in package 'foo'"
+    String expectedError = "no such target '@//foo:foo': target 'foo' not declared in package 'foo'"
         + " defined by /workspace/foo/BUILD";
     expectError(expectedError, "foo");
     expectError("The package part of 'foo/' should not end in a slash", "foo/");
@@ -313,7 +313,7 @@ public class TargetPatternEvaluatorTest extends AbstractTargetPatternEvaluatorTe
         "cc_library(name = 'foo1', srcs = [ 'foo1.cc' ], hdrs = [ 'foo1.h' ])",
         "cc_library(name = 'foo2', srcs = [ 'foo1.cc' ], hdrs = [ 'foo1.h' ])");
     invalidate("foo/BUILD");
-    assertThat(parseList("foo:all")).containsExactlyElementsIn(labels("//foo:foo1", "//foo:foo2"));
+    assertThat(parseList("foo:all")).containsExactlyElementsIn(labels("@//foo:foo1", "@//foo:foo2"));
   }
 
   @Test
@@ -324,9 +324,9 @@ public class TargetPatternEvaluatorTest extends AbstractTargetPatternEvaluatorTe
         "cc_library(name = 'nested2', srcs = [ ])");
 
     updateOffset(new PathFragment("nest"));
-    assertThat(parseList(":all")).containsExactlyElementsIn(labels("//nest:nested1"));
+    assertThat(parseList(":all")).containsExactlyElementsIn(labels("@//nest:nested1"));
     updateOffset(new PathFragment("nest/nest"));
-    assertThat(parseList(":all")).containsExactlyElementsIn(labels("//nest/nest:nested2"));
+    assertThat(parseList(":all")).containsExactlyElementsIn(labels("@//nest/nest:nested2"));
   }
 
   protected void updateOffset(PathFragment rel) {
@@ -339,12 +339,12 @@ public class TargetPatternEvaluatorTest extends AbstractTargetPatternEvaluatorTe
     assertThat(parseList("foo/bar" + suffix)).containsExactlyElementsIn(rulesInFooBar);
     assertThat(parseList("otherrules" + suffix)).containsExactlyElementsIn(rulesInOtherrules);
     assertNoEvents();
-    String msg1 = "while parsing 'nosuchpkg" + suffix + "': no such package 'nosuchpkg': "
+    String msg1 = "while parsing 'nosuchpkg" + suffix + "': no such package '@//nosuchpkg': "
         + "BUILD file not found on package path";
     expectError(msg1, "nosuchpkg" + suffix);
 
     String msg2 = "while parsing 'nosuchdirectory" + suffix
-        + "': no such package 'nosuchdirectory': "
+        + "': no such package '@//nosuchdirectory': "
         + "BUILD file not found on package path";
     expectError(msg2, "nosuchdirectory" + suffix);
     assertThat(parsingListener.events).containsExactly(Pair.of("nosuchpkg" + suffix, msg1),
@@ -357,12 +357,12 @@ public class TargetPatternEvaluatorTest extends AbstractTargetPatternEvaluatorTe
     assertThat(parseList("//foo/bar" + suffix)).containsExactlyElementsIn(rulesInFooBar);
     assertThat(parseList("//otherrules" + suffix)).containsExactlyElementsIn(rulesInOtherrules);
     assertNoEvents();
-    expectError("while parsing 'nosuchpkg" + suffix + "': no such package 'nosuchpkg': "
+    expectError("while parsing '@//nosuchpkg" + suffix + "': no such package '@//nosuchpkg': "
             + "BUILD file not found on package path",
-        "nosuchpkg" + suffix);
-    expectError("while parsing '//nosuchpkg" + suffix + "': no such package 'nosuchpkg': "
+        "@//nosuchpkg" + suffix);
+    expectError("while parsing '@//nosuchpkg" + suffix + "': no such package '@//nosuchpkg': "
             + "BUILD file not found on package path",
-        "//nosuchpkg" + suffix);
+        "@//nosuchpkg" + suffix);
   }
 
   @Test
@@ -448,8 +448,8 @@ public class TargetPatternEvaluatorTest extends AbstractTargetPatternEvaluatorTe
   public void testDefaultPackage() throws Exception {
     scratch.file("experimental/BUILD",
                 "cc_library(name = 'experimental', srcs = [ 'experimental.cc' ])");
-    assertEquals("//experimental:experimental", parseIndividualTarget("//experimental").toString());
-    assertEquals("//experimental:experimental", parseIndividualTarget("experimental").toString());
+    assertEquals("@//experimental:experimental", parseIndividualTarget("//experimental").toString());
+    assertEquals("@//experimental:experimental", parseIndividualTarget("experimental").toString());
     assertNoEvents();
   }
 
@@ -462,20 +462,20 @@ public class TargetPatternEvaluatorTest extends AbstractTargetPatternEvaluatorTe
     scratch.file("sub/dir/BUILD", "exports_files(['dir2'])");
     scratch.file("sub/dir/dir/BUILD", "exports_files(['dir'])");
     // sub/dir/dir is a package
-    assertEquals("//sub/dir/dir:dir", parseIndividualTarget("sub/dir/dir").toString());
+    assertEquals("@//sub/dir/dir:dir", parseIndividualTarget("sub/dir/dir").toString());
     // sub/dir is a package but not sub/dir/dir2
-    assertEquals("//sub/dir:dir2", parseIndividualTarget("sub/dir/dir2").toString());
+    assertEquals("@//sub/dir:dir2", parseIndividualTarget("sub/dir/dir2").toString());
     // sub is a package but not sub/dir2
-    assertEquals("//sub:dir2/dir2", parseIndividualTarget("sub/dir2/dir2").toString());
+    assertEquals("@//sub:dir2/dir2", parseIndividualTarget("sub/dir2/dir2").toString());
   }
 
   @Test
   public void testFindsLongestPlausiblePackageName() throws Exception {
-    assertEquals("//foo/bar:baz",
+    assertEquals("@//foo/bar:baz",
                  parseIndividualTarget("foo/bar/baz").toString());
-    assertEquals("//foo/bar:baz/bang",
+    assertEquals("@//foo/bar:baz/bang",
                  parseIndividualTarget("foo/bar/baz/bang").toString());
-    assertEquals("//foo:baz/bang",
+    assertEquals("@//foo:baz/bang",
         parseIndividualTarget("foo/baz/bang").toString());
   }
 
@@ -503,17 +503,17 @@ public class TargetPatternEvaluatorTest extends AbstractTargetPatternEvaluatorTe
 
   @Test
   public void testMultisegmentLabelsWithNoSlashSlash() throws Exception {
-    assertEquals("//foo/bar:wiz/bang",
+    assertEquals("@//foo/bar:wiz/bang",
         parseIndividualTarget("foo/bar:wiz/bang").toString());
-    assertEquals("//foo/bar:wiz/all",
+    assertEquals("@//foo/bar:wiz/all",
         parseIndividualTarget("foo/bar:wiz/all").toString());
   }
 
   @Test
   public void testMultisegmentLabelsWithNoSlashSlashRelative() throws Exception {
-    assertEquals("//foo/bar:wiz/bang",
+    assertEquals("@//foo/bar:wiz/bang",
         parseIndividualTargetRelative("bar:wiz/bang").toString());
-    assertEquals("//foo/bar:wiz/all",
+    assertEquals("@//foo/bar:wiz/all",
         parseIndividualTargetRelative("bar:wiz/all").toString());
   }
 
@@ -527,7 +527,7 @@ public class TargetPatternEvaluatorTest extends AbstractTargetPatternEvaluatorTe
   public void testDotDotDotDoesntMatchDeletedPackages() throws Exception {
     scratch.file("x/y/BUILD", "cc_library(name='y')");
     scratch.file("x/z/BUILD", "cc_library(name='z')");
-    setDeletedPackages(Sets.newHashSet(PackageIdentifier.createInDefaultRepo("x/y")));
+    setDeletedPackages(Sets.newHashSet(PackageIdentifier.createInMainRepo("x/y")));
     assertEquals(Sets.newHashSet(Label.parseAbsolute("//x/z")),
         parseList("x/..."));
   }
@@ -536,7 +536,7 @@ public class TargetPatternEvaluatorTest extends AbstractTargetPatternEvaluatorTe
   public void testDotDotDotDoesntMatchDeletedPackagesRelative() throws Exception {
     scratch.file("x/y/BUILD", "cc_library(name='y')");
     scratch.file("x/z/BUILD", "cc_library(name='z')");
-    setDeletedPackages(Sets.newHashSet(PackageIdentifier.createInDefaultRepo("x/y")));
+    setDeletedPackages(Sets.newHashSet(PackageIdentifier.createInMainRepo("x/y")));
 
     parser.updateOffset(new PathFragment("x"));
     assertEquals(Sets.newHashSet(Label.parseAbsolute("//x/z")),
@@ -551,7 +551,7 @@ public class TargetPatternEvaluatorTest extends AbstractTargetPatternEvaluatorTe
     assertEquals(Sets.newHashSet(Label.parseAbsolute("//x/y"), Label.parseAbsolute("//x/z")),
         parseList("x/..."));
 
-    setDeletedPackages(Sets.newHashSet(PackageIdentifier.createInDefaultRepo("x/y")));
+    setDeletedPackages(Sets.newHashSet(PackageIdentifier.createInMainRepo("x/y")));
     assertEquals(Sets.newHashSet(Label.parseAbsolute("//x/z")), parseList("x/..."));
 
     setDeletedPackages(ImmutableSet.<PackageIdentifier>of());
@@ -682,7 +682,7 @@ public class TargetPatternEvaluatorTest extends AbstractTargetPatternEvaluatorTe
   public void testHelpfulMessageForDirectoryWhichIsASubdirectoryOfAPackage() throws Exception {
     scratch.file("bar/BUILD");
     scratch.file("bar/quux/somefile");
-    expectError("no such target '//bar:quux': target 'quux' not declared in package 'bar'; "
+    expectError("no such target '@//bar:quux': target 'quux' not declared in package 'bar'; "
             + "however, a source directory of this name exists.  (Perhaps add "
             + "'exports_files([\"quux\"])' to bar/BUILD, or define a filegroup?) defined by "
             + "/workspace/bar/BUILD",
@@ -761,10 +761,10 @@ public class TargetPatternEvaluatorTest extends AbstractTargetPatternEvaluatorTe
 
   @Test
   public void testSetOffset() throws Exception {
-    assertEquals("//foo:foo1", parseIndividualTarget("foo:foo1").toString());
+    assertEquals("@//foo:foo1", parseIndividualTarget("foo:foo1").toString());
 
     parser.updateOffset(new PathFragment("foo"));
-    assertEquals("//foo:foo1", parseIndividualTarget(":foo1").toString());
+    assertEquals("@//foo:foo1", parseIndividualTarget(":foo1").toString());
   }
 
   @Test
@@ -801,9 +801,13 @@ public class TargetPatternEvaluatorTest extends AbstractTargetPatternEvaluatorTe
   @Test
   public void testKeepGoingBadPackage() throws Exception {
     assertKeepGoing(rulesBeneathFoo,
-        "Skipping '//missing_pkg': no such package 'missing_pkg': "
+        "Skipping '//missing_pkg': no such package '@//missing_pkg': "
             + "BUILD file not found on package path",
         "//missing_pkg", "foo/...");
+    assertKeepGoing(rulesBeneathFoo,
+        "Skipping '@//missing_pkg': no such package '@//missing_pkg': "
+            + "BUILD file not found on package path",
+        "@//missing_pkg", "foo/...");
   }
 
   @Test
@@ -837,10 +841,10 @@ public class TargetPatternEvaluatorTest extends AbstractTargetPatternEvaluatorTe
   @Test
   public void testKeepGoingMissingTarget() throws Exception {
     assertKeepGoing(rulesBeneathFoo,
-        "Skipping '//otherrules:missing_target': no such target "
-            + "'//otherrules:missing_target': target 'missing_target' not declared in "
+        "Skipping '@//otherrules:missing_target': no such target "
+            + "'@//otherrules:missing_target': target 'missing_target' not declared in "
             + "package 'otherrules'",
-        "//otherrules:missing_target", "foo/...");
+        "@//otherrules:missing_target", "foo/...");
   }
 
   @Test

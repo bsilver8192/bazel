@@ -145,9 +145,9 @@ public class DependencyResolverTest extends AnalysisTestCase {
     pkg("a",
         "aspect(name='a', foo=[':b'])",
         "aspect(name='b', foo=[])");
-    ListMultimap<Attribute, Dependency> map = dependentNodeMap("//a:a", null);
+    ListMultimap<Attribute, Dependency> map = dependentNodeMap("@//a:a", null);
     assertDep(
-        map, "foo", "//a:b", new Aspect(new NativeAspectClass(TestAspects.SimpleAspect.class)));
+        map, "foo", "@//a:b", new Aspect(new NativeAspectClass(TestAspects.SimpleAspect.class)));
   }
 
   @Test
@@ -157,9 +157,9 @@ public class DependencyResolverTest extends AnalysisTestCase {
         "simple(name='a', foo=[':b'])",
         "simple(name='b', foo=[])");
     ListMultimap<Attribute, Dependency> map =
-        dependentNodeMap("//a:a", TestAspects.AttributeAspect.class);
+        dependentNodeMap("@//a:a", TestAspects.AttributeAspect.class);
     assertDep(
-        map, "foo", "//a:b", new Aspect(new NativeAspectClass(TestAspects.AttributeAspect.class)));
+        map, "foo", "@//a:b", new Aspect(new NativeAspectClass(TestAspects.AttributeAspect.class)));
   }
 
   @Test
@@ -168,7 +168,7 @@ public class DependencyResolverTest extends AnalysisTestCase {
     pkg("a", "base(name='a')");
     pkg("extra", "base(name='extra')");
     ListMultimap<Attribute, Dependency> map =
-        dependentNodeMap("//a:a", TestAspects.ExtraAttributeAspect.class);
-    assertDep(map, "$dep", "//extra:extra");
+        dependentNodeMap("@//a:a", TestAspects.ExtraAttributeAspect.class);
+    assertDep(map, "$dep", "@//extra:extra");
   }
 }

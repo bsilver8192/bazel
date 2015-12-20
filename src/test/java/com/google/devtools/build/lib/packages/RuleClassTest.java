@@ -322,7 +322,7 @@ public class RuleClassTest extends PackageLoadingTestCase {
 
     // Test attribute access:
     AttributeMap attributes = RawAttributeMapper.of(rule);
-    assertEquals("//default:label",
+    assertEquals("@//default:label",
                  attributes.get("my-label-attr", BuildType.LABEL).toString());
     assertEquals(42,
                  attributes.get("my-integer-attr", Type.INTEGER).intValue());

@@ -54,6 +54,7 @@ public class PackageValue implements NotComparableSkyValue {
   }
 
   public static SkyKey key(PackageIdentifier pkgIdentifier) {
+    Preconditions.checkArgument(pkgIdentifier.isAbsolute());
     return new SkyKey(SkyFunctions.PACKAGE, pkgIdentifier);
   }
 

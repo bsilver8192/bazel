@@ -75,6 +75,14 @@ public final class PackageIdentifier implements Comparable<PackageIdentifier>, S
     }
   }
 
+  public static PackageIdentifier createInMainRepo(String name) {
+    return createInMainRepo(new PathFragment(name));
+  }
+
+  public static PackageIdentifier createInMainRepo(PathFragment name) {
+    return create(MAIN_REPOSITORY_NAME, name);
+  }
+
   /**
    * The identifier for this repository. This is either "" or prefixed with an "@",
    * e.g., "@myrepo".
@@ -134,6 +142,15 @@ public final class PackageIdentifier implements Comparable<PackageIdentifier>, S
    */
   public PathFragment getPathFragment() {
     return repository.getPathFragment().getRelative(pkgName);
+  }
+
+  public boolean isAbsolute() {
+    return !repository.isDefault() || Label.ABSOLUTE_PACKAGE_NAMES.contains(pkgName);
+  }
+
+  public PackageIdentifier makeAbsolute() {
+    if (isAbsolute()) return this;
+    return create(MAIN_REPOSITORY_NAME, pkgName);
   }
 
   /**

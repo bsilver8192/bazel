@@ -119,7 +119,7 @@ public class LoadingPhaseRunnerTest {
     // TODO(ulfjack): We don't collect package roots if we don't run the loading phase.
     if (runsLoadingPhase()) {
       assertEquals(
-          ImmutableMap.of(PackageIdentifier.createInDefaultRepo("base"), tester.getWorkspace()),
+          ImmutableMap.of(PackageIdentifier.createInMainRepo("base"), tester.getWorkspace()),
           loadingResult.getPackageRoots());
     }
   }
@@ -151,7 +151,7 @@ public class LoadingPhaseRunnerTest {
     assertThat(loadingResult.getTargets()).isEmpty();
     assertThat(loadingResult.getTestsToRun()).isNull();
     assertThat(loadingResult.getPackageRoots()).isEmpty();
-    tester.assertContainsError("Skipping '//base:missing': no such package 'base'");
+    tester.assertContainsError("Skipping '//base:missing': no such package '@//base'");
     tester.assertContainsWarning("Target pattern parsing failed.");
   }
 
@@ -164,7 +164,7 @@ public class LoadingPhaseRunnerTest {
     assertThat(loadingResult.getTargets()).isEmpty();
     assertThat(loadingResult.getTestsToRun()).isNull();
     assertThat(loadingResult.getPackageRoots()).isEmpty();
-    tester.assertContainsError("Skipping '//base:missing': no such target '//base:missing'");
+    tester.assertContainsError("Skipping '//base:missing': no such target '@//base:missing'");
     tester.assertContainsWarning("Target pattern parsing failed.");
   }
 
@@ -176,7 +176,7 @@ public class LoadingPhaseRunnerTest {
     assertFalse(loadingResult.hasLoadingError());
     assertThat(loadingResult.getTargets()).containsExactlyElementsIn(ImmutableList.<Target>of());
     assertThat(loadingResult.getTestsToRun()).containsExactlyElementsIn(ImmutableList.<Target>of());
-    tester.assertContainsError("Skipping '//base:missing': no such target '//base:missing'");
+    tester.assertContainsError("Skipping '//base:missing': no such target '@//base:missing'");
     tester.assertContainsWarning("Target pattern parsing failed.");
   }
 
@@ -194,7 +194,7 @@ public class LoadingPhaseRunnerTest {
     assertThat(loadingResult.getTargets()).containsExactlyElementsIn(ImmutableList.<Target>of());
     assertNull(loadingResult.getTestsToRun());
     assertTrue(loadingResult.getPackageRoots().size() <= 1);
-    tester.assertContainsError("no such package 'nonexistent': BUILD file not found");
+    tester.assertContainsError("no such package '@//nonexistent': BUILD file not found");
   }
 
   @Test
@@ -323,7 +323,7 @@ public class LoadingPhaseRunnerTest {
     assertThat(loadingResult.getTestsToRun()).containsExactlyElementsIn(getTargets("//cc:my_test"));
     if (runsLoadingPhase()) {
       assertThat(loadingResult.getPackageRoots().entrySet())
-          .contains(entryFor(PackageIdentifier.createInDefaultRepo("cc"), tester.getWorkspace()));
+          .contains(entryFor(PackageIdentifier.createInMainRepo("cc"), tester.getWorkspace()));
     }
     assertThat(tester.getOriginalTargets())
         .containsExactlyElementsIn(getTargets("//cc:tests", "//cc:my_test"));
@@ -339,7 +339,7 @@ public class LoadingPhaseRunnerTest {
     LoadingResult loadingResult = tester.loadTestsKeepGoing("//ts:tests");
     assertTrue(loadingResult.hasTargetPatternError());
     assertFalse(loadingResult.hasLoadingError());
-    tester.assertContainsError("no such package 'nonexistent'");
+    tester.assertContainsError("no such package '@//nonexistent'");
   }
 
   @Test
@@ -350,7 +350,7 @@ public class LoadingPhaseRunnerTest {
     assertFalse(loadingResult.hasTargetPatternError());
     assertTrue(loadingResult.hasLoadingError());
     tester.assertContainsError(
-        "expecting a test or a test_suite rule but '//ts:nonexistent_test' is not one");
+        "expecting a test or a test_suite rule but '@//ts:nonexistent_test' is not one");
   }
 
   @Test
@@ -361,7 +361,7 @@ public class LoadingPhaseRunnerTest {
     LoadingResult loadingResult = tester.loadTestsKeepGoing("//ts:tests");
     assertTrue(loadingResult.hasTargetPatternError());
     assertTrue(loadingResult.hasLoadingError());
-    tester.assertContainsError("no such target '//other:no_such_test'");
+    tester.assertContainsError("no such target '@//other:no_such_test'");
   }
 
   @Test
@@ -373,7 +373,7 @@ public class LoadingPhaseRunnerTest {
     LoadingResult loadingResult = tester.loadTestsKeepGoing("//ts:all");
     assertTrue(loadingResult.hasTargetPatternError());
     assertTrue(loadingResult.hasLoadingError());
-    tester.assertContainsError("no such target '//other:no_such_test'");
+    tester.assertContainsError("no such target '@//other:no_such_test'");
   }
 
   @Test
@@ -466,14 +466,14 @@ public class LoadingPhaseRunnerTest {
     Target result = Iterables.getOnlyElement(assertNoErrors(tester.load("//foo:x")).getTargets());
     assertThat(
         Iterables.transform(result.getAssociatedRule().getLabels(), Functions.toStringFunction()))
-        .containsExactly("//foo:a.y");
+        .containsExactly("@//foo:a.y");
 
     tester.addFile("foo/b.y");
     tester.sync();
     result = Iterables.getOnlyElement(assertNoErrors(tester.load("//foo:x")).getTargets());
     assertThat(
         Iterables.transform(result.getAssociatedRule().getLabels(), Functions.toStringFunction()))
-        .containsExactly("//foo:a.y", "//foo:b.y");
+        .containsExactly("@//foo:a.y", "@//foo:b.y");
   }
 
   /** Regression test: handle symlink cycles gracefully. */
@@ -576,7 +576,7 @@ public class LoadingPhaseRunnerTest {
       tester.load("base/hello.cc");
       fail();
     } catch (TargetParsingException expected) {
-      tester.assertContainsError("no such package 'bad'");
+      tester.assertContainsError("no such package '@//bad'");
     }
   }
 
@@ -596,7 +596,7 @@ public class LoadingPhaseRunnerTest {
         tester.load("base/hello.cc");
         fail();
       } catch (TargetParsingException expected) {
-        tester.assertContainsError("no such package 'bad'");
+        tester.assertContainsError("no such package '@//bad'");
       }
     } else {
       LoadingResult loadingResult = tester.loadKeepGoing("base/hello.cc");
