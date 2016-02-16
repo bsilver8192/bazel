@@ -331,6 +331,16 @@ public class SkylarkRuleContextTest extends SkylarkTestCase {
     }
   }
 
+  private void assertStringList(Object result, List<String> strings) {
+    assertThat(result).isInstanceOf(SkylarkList.class);
+    SkylarkList resultList = (SkylarkList) result;
+    assertEquals(strings.size(), resultList.size());
+    int i = 0;
+    for (String string : strings) {
+      assertEquals(string, resultList.get(i++));
+    }
+  }
+
   @Test
   public void shouldGetPrerequisites() throws Exception {
     SkylarkRuleContext ruleContext = createRuleContext("//foo:bar");
@@ -797,5 +807,35 @@ public class SkylarkRuleContextTest extends SkylarkTestCase {
           "ERROR /workspace/WORKSPACE:3:1: Cannot redefine repository after any load statement "
               + "in the WORKSPACE file (for repository 'foo')");
     }
+  }
+
+  @Test
+  public void testAccessingRunfiles() throws Exception {
+    scratch.file("test/a.py");
+    scratch.file("test/b.py");
+    scratch.file("test/rule.bzl",
+        "def _impl(ctx):",
+        "  return",
+        "skylark_rule = rule(",
+        "  implementation = _impl,",
+        "  attrs = {",
+        "    'dep': attr.label(),",
+        "  },",
+        ")");
+    scratch.file("test/BUILD",
+        "load('/test/rule', 'skylark_rule')",
+        "py_library(name = 'lib', srcs = ['a.py', 'b.py'])",
+        "skylark_rule(name = 'foo', dep = ':lib')");
+    SkylarkRuleContext ruleContext = createRuleContext("//test:foo");
+    Object filenames = evalRuleContextCode(ruleContext,
+        "[f.short_path for f in ruleContext.attr.dep.default_runfiles.files]");
+    assertStringList(filenames, ImmutableList.of("test/a.py", "test/b.py"));
+    Object emptyFilenames = evalRuleContextCode(ruleContext,
+        "list(ruleContext.attr.dep.default_runfiles.empty_filenames(set(['test/a.py'])))");
+    assertStringList(emptyFilenames, ImmutableList.of("test/__init__.py"));
+    Object noEmptyFilenames = evalRuleContextCode(ruleContext,
+        "list(ruleContext.attr.dep.default_runfiles.empty_filenames(" +
+        "set(['test/a.py', 'test/__init__.pyc'])))");
+    assertStringList(noEmptyFilenames, ImmutableList.of());
   }
 }

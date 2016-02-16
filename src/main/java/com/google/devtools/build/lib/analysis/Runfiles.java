@@ -30,6 +30,11 @@ import com.google.devtools.build.lib.events.Location;
 import com.google.devtools.build.lib.packages.BuildType;
 import com.google.devtools.build.lib.skylarkinterface.SkylarkCallable;
 import com.google.devtools.build.lib.skylarkinterface.SkylarkModule;
+import com.google.devtools.build.lib.skylarkinterface.SkylarkSignature;
+import com.google.devtools.build.lib.skylarkinterface.SkylarkSignature.Param;
+import com.google.devtools.build.lib.syntax.BuiltinFunction;
+import com.google.devtools.build.lib.syntax.SkylarkNestedSet;
+import com.google.devtools.build.lib.syntax.SkylarkSignatureProcessor;
 import com.google.devtools.build.lib.util.Preconditions;
 import com.google.devtools.build.lib.vfs.Path;
 import com.google.devtools.build.lib.vfs.PathFragment;
@@ -39,6 +44,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -285,6 +291,29 @@ public final class Runfiles {
   public NestedSet<SymlinkEntry> getSymlinks() {
     return symlinks;
   }
+
+  @SkylarkSignature(
+      name = "empty_filenames",
+      doc = "Returns names of empty files to create in addition to a given set."
+          + " This is mainly for Python rules to create __init__.py files.",
+      objectType = Runfiles.class, returnType = SkylarkNestedSet.class,
+      mandatoryPositionals = {
+        @Param(name = "self", type = Runfiles.class, doc = "this runfiles"),
+        @Param(name = "files", type = SkylarkNestedSet.class, generic1 = String.class,
+               doc = "the files which already exist")})
+  private static BuiltinFunction emptyFilenames = new BuiltinFunction("empty_filenames") {
+    public SkylarkNestedSet invoke(Runfiles runfiles, SkylarkNestedSet files) {
+      Set<PathFragment> manifest = new HashSet();
+      for (String c : files.getSet(String.class)) {
+        manifest.add(new PathFragment(c));
+      }
+      NestedSetBuilder<String> emptyFilenames = NestedSetBuilder.stableOrder();
+      for (PathFragment c : runfiles.emptyFilesSupplier.getExtraPaths(manifest)) {
+        emptyFilenames.add(c.toString());
+      }
+      return SkylarkNestedSet.of(String.class, emptyFilenames.build());
+    }
+  };
 
   /**
    * Returns the symlinks as a map from path fragment to artifact.
@@ -819,5 +848,9 @@ public final class Runfiles {
         return Collections.emptyList();
       }
     }
+  }
+
+  static {
+    SkylarkSignatureProcessor.configureSkylarkFunctions(Runfiles.class);
   }
 }
